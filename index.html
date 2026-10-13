@@ -19,7 +19,8 @@
   --sans:'Jost','Avenir Next','Segoe UI',sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font:400 15px/1.45 var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh}
+/* FIX 1 — nada fica escondido atrás da barra inferior */
+body{background:var(--bg);color:var(--ink);font:400 15px/1.45 var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh;padding-bottom:100px}
 ::selection{background:rgba(212,175,55,.35)}
 ::-webkit-scrollbar{width:7px;height:7px}
 ::-webkit-scrollbar-thumb{background:#26241d;border-radius:99px}
@@ -36,14 +37,23 @@ button{font-family:var(--sans)}
 .brand small{display:block;font-size:9px;letter-spacing:.34em;color:var(--mut);margin-top:4px;font-weight:400}
 
 /* ===== navegação inferior ===== */
-.bnav{position:fixed;left:0;right:0;bottom:0;z-index:45;display:flex;background:rgba(10,10,10,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
-.bnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;color:#6f6a5e;font-size:10.5px;letter-spacing:.04em;cursor:pointer;padding:6px 0;transition:.18s}
-.bnav button.on{color:var(--gold)}
-.bnav button.on svg{filter:drop-shadow(0 0 7px rgba(212,175,55,.5))}
-main{padding:18px 0 100px}
+/* FIX 1 — z-index 9999 + safe-area garantida */
+.nav-bottom{position:fixed;left:0;right:0;bottom:0;z-index:9999;display:flex;background:rgba(10,10,10,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,16px))}
+.nav-bottom button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;color:#6f6a5e;font-size:10.5px;letter-spacing:.04em;cursor:pointer;padding:6px 0;transition:.18s}
+.nav-bottom button.on{color:var(--gold)}
+.nav-bottom button.on svg{filter:drop-shadow(0 0 7px rgba(212,175,55,.5))}
+main{padding:18px 0 0}
 .view{display:none}
 .view.on{display:block;animation:fade .28s ease}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* FIX 1 — respiro extra no fim do formulário de Nova OS */
+#nova{padding-bottom:100px}
+
+/* FIX 2 — modo PC: coluna de celular centralizada, sem ficar esticado */
+@media(min-width:768px){
+  body{max-width:480px;margin:0 auto;border-left:1px solid #222;border-right:1px solid #222}
+  .nav-bottom{max-width:480px;left:50%;right:auto;transform:translateX(-50%)}
+}
 
 /* ===== cards / seções ===== */
 .stats2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
@@ -101,11 +111,11 @@ select option{background:#141414;color:var(--ink)}
 .btn.ghost.danger{border-color:rgba(205,85,85,.4);color:#d98c8c}
 .btn.ghost.danger:hover{background:rgba(205,85,85,.09)}
 .btn.w100{width:100%}
-.iconbtn{background:none;border:1px solid #26262a;border-radius:9px;color:var(--mut);width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;transition:.15s}
+.iconbtn{background:none;border:1px solid #26262a;border-radius:9px;color:var(--mut);width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;transition:.15s;text-decoration:none}
 .iconbtn:hover{color:var(--gold);border-color:rgba(212,175,55,.45)}
 .mini{background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.25);color:var(--gold);border-radius:9px;padding:6px 11px;font-size:12px;display:inline-flex;gap:5px;align-items:center;cursor:pointer;transition:.15s}
 .mini:hover{background:rgba(212,175,55,.17)}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
 .pchip{background:transparent;border:1px solid #26262a;color:#b9b3a4;border-radius:999px;padding:8px 14px;font-size:12.5px;cursor:pointer;transition:.15s}
 .pchip:hover{border-color:rgba(212,175,55,.45);color:var(--gold)}
 .pchip.on{background:rgba(212,175,55,.12);border-color:var(--gold);color:var(--gold)}
@@ -115,7 +125,7 @@ select option{background:#141414;color:var(--ink)}
 .search{display:flex;align-items:center;gap:9px;background:#101010;border:1px solid #242424;border-radius:999px;padding:10px 15px;color:var(--mut);margin-bottom:14px}
 .search input{flex:1;background:none;border:0;color:var(--ink);font:inherit;font-size:16px;outline:none;min-width:0}
 
-/* ===== badges / bancada tab ===== */
+/* ===== badges / bancada ===== */
 .badge{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;border-radius:999px;border:1px solid;white-space:nowrap}
 .b-analise{color:#a29a86;border-color:#3a382f}
 .b-reparo{color:var(--gold);border-color:rgba(212,175,55,.45)}
@@ -136,7 +146,7 @@ select option{background:#141414;color:var(--ink)}
 .kb-foot{display:flex;justify-content:space-between;align-items:center;margin-top:9px;gap:8px}
 .val{color:var(--gold);font-weight:600;font-variant-numeric:tabular-nums}
 
-/* ===== lista de ordens / histórico ===== */
+/* ===== listas / histórico ===== */
 .olist{display:grid;gap:9px}
 .orow{display:flex;gap:12px;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;cursor:pointer;transition:.15s}
 .orow:hover{border-color:rgba(212,175,55,.4)}
@@ -173,14 +183,13 @@ select option{background:#141414;color:var(--ink)}
 .ok-badge{width:54px;height:54px;border-radius:50%;border:1px solid rgba(212,175,55,.5);background:rgba(212,175,55,.08);display:flex;align-items:center;justify-content:center;color:var(--gold);margin:6px auto 14px;box-shadow:0 0 24px rgba(212,175,55,.2)}
 .ok-num{text-align:center;font-family:var(--serif);font-size:21px;letter-spacing:.1em;color:var(--gold)}
 .ok-sub{text-align:center;font-size:13px;color:var(--mut);margin:7px 0 4px}
-.wa-link{display:block;text-align:center;font-size:11px;color:#77a06a;word-break:break-all;margin-top:10px}
 #toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:max-content;max-width:92vw}
 .toast{background:#161613;border:1px solid rgba(212,175,55,.4);color:var(--ink);padding:10px 17px;border-radius:999px;font-size:13.5px;box-shadow:0 10px 30px rgba(0,0,0,.5);animation:tin .25s ease;display:flex;gap:9px;align-items:center;max-width:100%}
 .toast .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px rgba(212,175,55,.8)}
 .toast.out{opacity:0;transform:translateY(6px);transition:.3s}
 @keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
 
-/* ===== fallback de impressão (se jsPDF falhar offline) ===== */
+/* ===== fallback de impressão (sem jsPDF) ===== */
 #printArea{display:none}
 @media print{
   @page{margin:12mm}
@@ -219,7 +228,7 @@ select option{background:#141414;color:var(--ink)}
 <main class="wrap">
 
   <!-- PAINEL -->
-  <section class="view on" id="v-painel">
+  <section class="view on" id="painel">
     <div class="stats2" id="pStats"></div>
     <div class="card">
       <span class="ov">Caixa</span>
@@ -234,7 +243,7 @@ select option{background:#141414;color:var(--ink)}
   </section>
 
   <!-- NOVA OS -->
-  <section class="view" id="v-nova">
+  <section class="view" id="nova">
     <div class="sechead"><span class="ov">Pré-atendimento</span><h2>Nova Ordem de Serviço</h2></div>
     <div class="card">
       <span class="nextnum">Próxima ordem: <b id="nextNum"></b></span>
@@ -273,21 +282,21 @@ select option{background:#141414;color:var(--ink)}
   </section>
 
   <!-- BANCADA -->
-  <section class="view" id="v-bancada">
+  <section class="view" id="bancada">
     <div class="sechead"><span class="ov">Controle de bancada</span><h2>Andamento dos Reparos</h2>
       <small class="hint">Use “Avançar” para mover: Análise → Reparo → Pronto → Entregue.</small></div>
     <div class="board" id="board"></div>
   </section>
 
   <!-- ORDENS -->
-  <section class="view" id="v-ordens">
+  <section class="view" id="ordens">
     <div class="sechead"><span class="ov">Registro</span><h2>Todas as Ordens</h2></div>
     <label class="search"><i data-ic="search"></i><input id="q" type="search" placeholder="Buscar nome, OS ou modelo…" autocomplete="off"></label>
     <div id="osList" class="olist"></div>
   </section>
 
   <!-- VENDAS -->
-  <section class="view" id="v-vendas">
+  <section class="view" id="vendas">
     <div class="sechead"><span class="ov">Frente de loja</span><h2>Vendas &amp; Caixa</h2></div>
     <div class="stats2" id="vStats"></div>
     <div class="card">
@@ -312,7 +321,7 @@ select option{background:#141414;color:var(--ink)}
 
 </main>
 
-<nav class="bnav" id="bnav">
+<nav class="nav-bottom" id="nav-bottom">
   <button class="on" data-act="go" data-v="painel"><i data-ic="dash"></i>Painel</button>
   <button data-act="go" data-v="nova"><i data-ic="plus"></i>Nova OS</button>
   <button data-act="go" data-v="bancada"><i data-ic="board"></i>Bancada</button>
@@ -353,7 +362,6 @@ const I={
  trash:'<path d="M4 7h16"/><path d="M9.5 7V4.5h5V7"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10 11v5.5M14 11v5.5"/>',
  swap:'<path d="M16 4.5l4 4-4 4"/><path d="M20 8.5H6.5"/><path d="M8 19.5l-4-4 4-4"/><path d="M4 15.5h13.5"/>',
  coin:'<circle cx="12" cy="12" r="8.4"/><path d="M12 7.2v9.6"/><path d="M14.6 9.2c-.5-.8-1.5-1.3-2.6-1.3-1.5 0-2.6.8-2.6 1.9 0 2.5 5.3 1.3 5.3 3.9 0 1.2-1.2 2-2.7 2-1.2 0-2.3-.5-2.8-1.4"/>',
- clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 1.9"/>',
  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>'
 };
 const ic=(n,s=19)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]}</svg>`;
@@ -382,7 +390,7 @@ function closeModal(){mwrap.classList.remove('on');modal.innerHTML='';document.b
 mwrap.addEventListener('click',e=>{if(e.target===mwrap)closeModal()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 
-/* ================= PDF LUXO (logo desenhada em linhas) ================= */
+/* ================= PDF LUXO ================= */
 function gerarPDF(o){
   if(window.jspdf&&window.jspdf.jsPDF){
     try{pdfJs(o);return}catch(err){console.error(err)}
@@ -399,49 +407,49 @@ function pdfJs(o){
   doc.setDrawColor(...GOLD);doc.setLineWidth(.9);doc.roundedRect(7,7,196,283,6,6,'S');
   doc.setLineWidth(.3);doc.roundedRect(10.5,10.5,189,276,4,4,'S');
 
-  /* logo desenhada: losango duplo + N (linhas, sem imagem) */
-  doc.setDrawColor(...GOLD);doc.setLineWidth(.9);
-  doc.line(105,12,88,26);doc.line(88,26,105,40);doc.line(105,40,122,26);doc.line(122,26,105,12);
-  doc.setLineWidth(.35);
-  doc.line(105,16.5,93.5,26);doc.line(93.5,26,105,35.5);doc.line(105,35.5,116.5,26);doc.line(116.5,26,105,16.5);
-  doc.setFont('times','bold');doc.setFontSize(18);doc.setTextColor(...GOLD);
-  doc.text('N',105,29,{align:'center'});
-  doc.setFontSize(18);doc.text("NEGRET'S",105,50,{align:'center'});
+  /* ===== FIX 5 — LOGO GRANDE: losango de (105,30) / (82,55) / (105,80) / (128,55) ===== */
+  doc.setDrawColor(...GOLD);doc.setLineWidth(1.1);
+  doc.line(105,30,82,55);doc.line(82,55,105,80);doc.line(105,80,128,55);doc.line(128,55,105,30);
+  doc.setLineWidth(.4);
+  doc.line(105,37.5,89.5,55);doc.line(89.5,55,105,72.5);doc.line(105,72.5,120.5,55);doc.line(120.5,55,105,37.5);
+  doc.setFont('times','bold');doc.setFontSize(28);doc.setTextColor(...GOLD);
+  doc.text('N',105,59.5,{align:'center'});
+  doc.setFontSize(18);doc.text("NEGRET'S",105,90,{align:'center'});
   doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...MUT);doc.setCharSpace(2.2);
-  doc.text('ASSISTÊNCIA TÉCNICA & VENDAS',105,56,{align:'center'});doc.setCharSpace(0);
+  doc.text('ASSISTÊNCIA TÉCNICA & VENDAS',105,96,{align:'center'});doc.setCharSpace(0);
 
   /* divisor com losango central */
   doc.setDrawColor(...GOLD);doc.setLineWidth(.25);
-  doc.line(22,62,99,62);doc.line(111,62,188,62);
-  doc.line(105,60.6,103.6,62);doc.line(103.6,62,105,63.4);doc.line(105,63.4,106.4,62);doc.line(106.4,62,105,60.6);
+  doc.line(22,102,99,102);doc.line(111,102,188,102);
+  doc.line(105,100.6,103.6,102);doc.line(103.6,102,105,103.4);doc.line(105,103.4,106.4,102);doc.line(106.4,102,105,100.6);
 
   /* título OS + emissão */
   doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...MUT);doc.setCharSpace(1.6);
-  doc.text('ORDEM DE SERVIÇO',20,72);doc.text('EMITIDA EM',190,72,{align:'right'});doc.setCharSpace(0);
+  doc.text('ORDEM DE SERVIÇO',20,110);doc.text('EMITIDA EM',190,110,{align:'right'});doc.setCharSpace(0);
   doc.setFont('times','bold');doc.setFontSize(16);doc.setTextColor(...GOLDD);
-  doc.text(o.numero,20,79);
+  doc.text(o.numero,20,117);
   doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(...INK);
-  doc.text(dataHora(o.criadoEm),190,79,{align:'right'});
+  doc.text(dataHora(o.criadoEm),190,117,{align:'right'});
 
-  /* campos com linha pontilhada */
+  /* ===== FIX 4 — campos sem estourar: substring(0,34) + passo fixo de 13mm no yp ===== */
+  const t34=v=>{v=String(v??'').trim();return v===''?'—':v.substring(0,34)};
   const dotted=(x1,x2,y)=>{doc.setLineDashPattern([.5,.9],0);doc.setDrawColor(185,176,150);doc.setLineWidth(.25);doc.line(x1,y,x2,y);doc.setLineDashPattern([],0)};
   const label=(x,y,t)=>{doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...MUT);doc.setCharSpace(1.4);doc.text(t,x,y);doc.setCharSpace(0)};
-  const val=(x,y,t,align)=>{doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(...INK);doc.text(String(t||'—'),x,y,{align:align||'left',maxWidth:80})};
-  let y=92;
-  label(20,y,'CLIENTE');label(108,y,'WHATSAPP');val(20,y+5.5,o.cliente);val(108,y+5.5,o.wa);
-  dotted(20,102,y+8.5);dotted(108,190,y+8.5);y+=16;
-  label(20,y,'APARELHO');val(20,y+5.5,o.modeloFull);dotted(20,190,y+8.5);y+=16;
-  label(20,y,'IMEI');label(108,y,'SERVIÇO');val(20,y+5.5,o.imei);val(108,y+5.5,o.servico);
-  dotted(20,102,y+8.5);dotted(108,190,y+8.5);y+=16;
-  label(20,y,'DEFEITO RELATADO');
-  doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(...INK);
-  const dv=doc.splitTextToSize(o.defeito||'—',168);doc.text(dv.slice(0,2),20,y+5.5);
-  dotted(20,190,y+8.5+(dv.length>1?6:0));y+= dv.length>1?24:18;
-  label(20,y,'CONDIÇÃO DO APARELHO');label(108,y,'ACESSÓRIOS DEIXADOS');val(20,y+5.5,o.cond);val(108,y+5.5,o.acess);
-  dotted(20,102,y+8.5);dotted(108,190,y+8.5);
+  const val=(x,y,t)=>{doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(...INK);doc.text(String(t),x,y)};
+  let yp=126;
+  const linha=(rot1,v1,rot2,v2)=>{
+    label(20,yp,rot1);val(20,yp+5.5,t34(v1));dotted(20,102,yp+8.5);
+    if(rot2){label(108,yp,rot2);val(108,yp+5.5,t34(v2));dotted(108,190,yp+8.5)}
+    yp+=13;
+  };
+  linha('CLIENTE',o.cliente,'WHATSAPP',o.wa);
+  linha('APARELHO',o.modeloFull);
+  linha('IMEI',o.imei,'SERVIÇO',o.servico);
+  linha('DEFEITO RELATADO',o.defeito);
+  linha('CONDIÇÃO DO APARELHO',o.cond,'ACESSÓRIOS DEIXADOS',o.acess);
 
   /* caixa de valores — fundo creme */
-  const by=172;
+  const by=194;
   doc.setFillColor(253,251,245);doc.setDrawColor(...GOLD);doc.setLineWidth(.35);
   doc.roundedRect(20,by,170,46,3,3,'FD');
   const row=(ly,l,v,bold)=>{doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...MUT);doc.setCharSpace(1.4);doc.text(l,26,ly);doc.setCharSpace(0);
@@ -457,24 +465,31 @@ function pdfJs(o){
   row(vy+2,'FORMA DE PAGAMENTO',o.forma);
 
   /* termo de garantia — caixa tracejada */
-  const ty=228;
+  const ty=245;
   doc.setDrawColor(...GOLDD);doc.setLineWidth(.4);doc.setLineDashPattern([1.8,1.8],0);
-  doc.roundedRect(20,ty,170,25,3,3,'S');doc.setLineDashPattern([],0);
+  doc.roundedRect(20,ty,170,23,3,3,'S');doc.setLineDashPattern([],0);
   doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(...GOLDD);doc.setCharSpace(2.4);
   doc.text('TERMO DE GARANTIA',105,ty+7,{align:'center'});doc.setCharSpace(0);
   doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(...INK);
-  doc.text('Garantia de 90 dias para o serviço executado.',105,ty+14,{align:'center'});
-  doc.text('Não nos responsabilizamos por dados armazenados no aparelho.',105,ty+19.5,{align:'center'});
+  doc.text('Garantia de 90 dias para o serviço executado.',105,ty+13.5,{align:'center'});
+  doc.text('Não nos responsabilizamos por dados armazenados no aparelho.',105,ty+19,{align:'center'});
 
   /* assinaturas */
   doc.setDrawColor(90,85,70);doc.setLineWidth(.3);
-  doc.line(28,266,95,266);doc.line(115,266,182,266);
+  doc.line(28,276,95,276);doc.line(115,276,182,276);
   doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...MUT);doc.setCharSpace(1.2);
-  doc.text("NEGRET'S",61.5,271,{align:'center'});
-  doc.text('CLIENTE - CONCORDO COM OS TERMOS',148.5,271,{align:'center'});doc.setCharSpace(0);
-  doc.setFontSize(7);doc.text('Documento gerado eletronicamente · NEGRET\'S Assistência Técnica & Vendas',105,281,{align:'center'});
+  doc.text("NEGRET'S",61.5,281,{align:'center'});
+  doc.text('CLIENTE - CONCORDO COM OS TERMOS',148.5,281,{align:'center'});doc.setCharSpace(0);
+  doc.setFontSize(7);doc.text('Documento gerado eletronicamente · NEGRET\'S Assistência Técnica & Vendas',105,285.5,{align:'center'});
 
   doc.save(`OS-${o.numero}.pdf`);
+
+  /* ===== FIX 5 — impressão automática via blob ===== */
+  doc.autoPrint();
+  let blob=doc.output('bloburl');
+  let win=window.open(blob);
+  if(win){ win.onload=()=>setTimeout(()=>win.print(),500); }
+  else{ toast('Autorize os pop-ups para abrir a impressão do PDF'); }
 }
 function fallbackPrint(o){
   $('#printArea').innerHTML=`<div class="pr"><div class="lg">N</div><h1>NEGRET'S</h1>
@@ -527,7 +542,7 @@ function detalhesModal(id){
   <dl class="dl" style="margin-top:14px">
     <div><dt>Cliente</dt><dd>${esc(o.cliente)}</dd></div><div><dt>WhatsApp</dt><dd>${esc(o.wa)}</dd></div>
     <div><dt>Aparelho</dt><dd>${esc(o.modeloFull)}</dd></div><div><dt>IMEI</dt><dd>${esc(o.imei)||'—'}</dd></div>
-    <div class="span2" style="grid-column:1/-1"><dt>Defeito</dt><dd>${esc(o.defeito)}</dd></div>
+    <div style="grid-column:1/-1"><dt>Defeito</dt><dd>${esc(o.defeito)}</dd></div>
     <div><dt>Condição</dt><dd>${esc(o.cond)||'—'}</dd></div><div><dt>Acessórios</dt><dd>${esc(o.acess)||'—'}</dd></div>
     <div><dt>Valor total</dt><dd class="val">${money(o.valor)}</dd></div><div><dt>Saldo</dt><dd class="val">${money(saldo)}</dd></div>
     <div><dt>Serviço</dt><dd>${esc(o.servico)}</dd></div><div><dt>Pagamento</dt><dd>${esc(o.forma)}</dd></div>
@@ -548,8 +563,7 @@ function okModal(o){
     <a class="btn gold w100" href="${link}" target="_blank" rel="noopener">${ic('wa',17)} Enviar comprovante no WhatsApp</a>
     <button class="btn ghost w100" data-act="pdf" data-id="${o.id}">${ic('print',16)} Baixar PDF novamente</button>
     <button class="btn ghost w100" data-act="close">Nova OS</button>
-  </div>
-  <a class="wa-link" href="${link}" target="_blank" rel="noopener">${esc(link.length>90?link.slice(0,90)+'…':link)}</a>`);
+  </div>`);
 }
 
 /* ================= renders ================= */
@@ -561,7 +575,6 @@ function renderPainel(){
   $('#pStats').innerHTML=`
     <div class="stat"><span>${ic('coin',15)} Faturamento hoje</span><b>${money(fatOS+fatV)}</b><small>vendas + ordens</small></div>
     <div class="stat"><span>${ic('bag',15)} Lucro hoje</span><b>${money(lucro)}</b><small>custos descontados</small></div>`;
-  /* gráfico 7 dias */
   const dias=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return d});
   const serie=dias.map(d=>{const k=diaStr(d);
     return{lbl:d.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','').toUpperCase(),
@@ -572,7 +585,6 @@ function renderPainel(){
     <div class="cb">${s.v>0?`<span class="cbv">${s.v}</span>`:''}
       <div class="cbar${i===6?' now':''}" style="height:${s.v>0?Math.max(10,Math.round(s.v/max*100)):0}%"></div>
       <span class="cbl">${s.lbl}</span></div>`).join('');
-  /* bancada — mais antigos */
   const wait=DB.ordens.filter(o=>o.status!=='entregue').sort((a,b)=>a.criadoEm-b.criadoEm).slice(0,3);
   $('#waitList').innerHTML=wait.length?wait.map(o=>`
     <button class="wait" data-act="ver" data-id="${o.id}">
@@ -638,8 +650,8 @@ document.addEventListener('click',e=>{
   const act=el.dataset.act,id=el.dataset.id;
   switch(act){
     case 'go':{
-      $$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+el.dataset.v));
-      $$('#bnav button').forEach(b=>b.classList.toggle('on',b===el));
+      $$('.view').forEach(x=>x.classList.toggle('on',x.id===el.dataset.v));
+      $$('.nav-bottom button').forEach(b=>b.classList.toggle('on',b===el));
       window.scrollTo({top:0,behavior:'smooth'});break}
     case 'ver':detalhesModal(id);break;
     case 'pdf':{const o=DB.ordens.find(x=>x.id===id);if(o){gerarPDF(o);toast('PDF gerado')}break}
@@ -656,14 +668,12 @@ document.addEventListener('click',e=>{
 });
  $('#q').addEventListener('input',e=>{q=e.target.value.trim();renderOrdens()});
 
-/* saldo ao vivo no formulário */
  $('#osForm').addEventListener('input',()=>{
   const v=+($('#osForm [name=valor]').value.replace(/\D/g,'')||0);
   const e2=+($('#osForm [name=entrada]').value.replace(/\D/g,'')||0);
   $('#fSaldo').textContent=v>0?money(Math.max(0,v-e2)):'—';
 });
 
-/* nova OS */
  $('#osForm').addEventListener('submit',e=>{
   e.preventDefault();const f=e.target;
   const valor=+(f.valor.value.replace(/\D/g,'')||0);
@@ -682,7 +692,6 @@ document.addEventListener('click',e=>{
   f.reset();$('#fSaldo').textContent='—';
 });
 
-/* venda */
  $('#vForm').addEventListener('submit',e=>{
   e.preventDefault();const f=e.target;
   const item=f.item.value.trim(),valor=+(f.valor.value.replace(/\D/g,'')||0);
