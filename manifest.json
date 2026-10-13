@@ -7,7 +7,7 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "any",
+  "orientation": "portrait",
   "background_color": "#080808",
   "theme_color": "#d4af37",
   "categories": ["business", "shopping", "productivity"],
