@@ -1,5 +1,5 @@
 /* NEGRET'S — Service Worker (offline-first) */
-const VERSION = 'negrets-v1.0.4';
+const VERSION = 'negrets-v1.0.7';
 const APP_SHELL = [
   './',
   './index.html',
