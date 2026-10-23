@@ -21,6 +21,7 @@ body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--sans);min-hei
 .card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:18px;width:100%;max-width:430px;padding:22px 20px;margin-top:20px}
 .osnum{font-family:var(--serif);color:var(--gold);font-size:19px;letter-spacing:.06em;text-align:center}
 .upd{text-align:center;color:var(--mut);font-size:11.5px;margin-top:4px;letter-spacing:.06em;min-height:18px}
+.minibody{text-align:center;color:var(--mut);font-size:13.5px;line-height:1.6;margin-top:18px}
 .tl{margin:26px 0 8px}
 .tl-step{display:flex;gap:14px;position:relative;padding-bottom:26px}
 .tl-step:last-child{padding-bottom:0}
@@ -60,6 +61,7 @@ body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--sans);min-hei
 .live i{width:7px;height:7px;border-radius:50%;background:#7fe8a4;display:inline-block;box-shadow:0 0 8px #7fe8a4;animation:pul 1.6s infinite}
 .live.warn i{background:#e8b34a;box-shadow:0 0 8px #e8b34a;animation:none}
 .live.off i{background:#777;box-shadow:none;animation:none}
+.live.wait i{background:var(--gold);box-shadow:0 0 8px var(--gold);animation:pul 1.2s infinite}
 @keyframes pul{0%,100%{opacity:1}50%{opacity:.35}}
 .spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(20,16,5,.35);border-top-color:#141005;border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
@@ -72,9 +74,13 @@ body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--sans);min-hei
 <div id="app"></div>
 <div class="foot">Este link é privado — não compartilhe com outras pessoas.<br>Guarde esta mensagem: é por aqui que a loja informa o andamento.</div>
 <script>
-const LABELS={analise:'EM ANÁLISE',reparo:'EM REPARO',pronto:'PRONTO — RETIRE NA LOJA',entregue:'ENTREGUE'};
-const ORDER=['analise','reparo','pronto','entregue'];
-const DESCR={analise:'Recebemos seu aparelho e nossa equipe está avaliando.',reparo:'Avaliação aprovada — o reparo está em andamento.',pronto:'Seu aparelho está pronto para retirada.',entregue:'Serviço concluído e aparelho entregue. Obrigado!'};
+/* NEGRET'S — rastreio do cliente
+   Dois formatos de link:
+   • PERMANENTE (v2): hash = {v:2, n, tn} — a string NUNCA muda; o status é buscado na nuvem ao abrir e renovado a cada 20s.
+   • ANTIGO (legado): hash = snapshot completo — renderiza igual e mostra aviso de modelo antigo. */
+const LABELS={analise:'EM ANÁLISE',orcamento:'ORÇAMENTO ENVIADO',reparo:'EM REPARO',pronto:'PRONTO — RETIRE NA LOJA',entregue:'ENTREGUE'};
+const ORDER=['analise','orcamento','reparo','pronto','entregue'];
+const DESCR={analise:'Recebemos seu aparelho e nossa equipe está avaliando.',orcamento:'Avaliação pronta — aguardando sua aprovação do orçamento.',reparo:'Orçamento aprovado — o reparo está em andamento.',pronto:'Seu aparelho está pronto para retirada.',entregue:'Serviço concluído e aparelho entregue. Obrigado!'};
 const NTFY='https://ntfy.sh/';
 function b64d(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return JSON.parse(decodeURIComponent(escape(atob(s))));}
 const esc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -85,12 +91,13 @@ function fmtH(t){try{return new Date(t).toLocaleTimeString('pt-BR',{hour:'2-digi
 function limpa(s){return String(s||'').replace(/\D/g,'');}
 const $=id=>document.getElementById(id);
 let DATA=null,BUSY=false;
+function hasCloud(d){return !!(d&&d.tn);}
 function render(d){
   DATA=d;
   const cur=ORDER.includes(d.st)?d.st:'analise';
   const curIdx=ORDER.indexOf(cur);
-  const falta=Math.max(0,(+d.v||0)-(+d.pg!=null?+d.pg:+d.e||0));
-  const pago=(+d.pg!=null?+d.pg:+d.e||0);
+  const pago=d.pg!=null?+d.pg:(+d.e||0);
+  const falta=Math.max(0,(+d.v||0)-pago);
   let tl='';
   ORDER.forEach((k,i)=>{
     const done=i<curIdx,isCur=i===curIdx;
@@ -124,84 +131,109 @@ function render(d){
       <div><span>FALTA</span><b>${money(falta)}</b></div>
     </div>${falta<=0?'<span class="badge" style="border-color:rgba(127,232,164,.5);color:#7fe8a4;background:rgba(127,232,164,.06)">PAGAMENTO QUITADO — OBRIGADO!</span>':''}`:''}
     <div class="btnrow">
-      ${DATA.tn?`<button id="btnUpd">ATUALIZAR</button>`:''}
+      ${hasCloud(DATA)?`<button id="btnUpd">ATUALIZAR</button>`:''}
       ${zap?`<a class="g" href="https://wa.me/${esc(zap)}" target="_blank">FALAR COM A LOJA</a>`:''}
     </div>
-    ${DATA.tn?'':'<div style="text-align:center;color:var(--mut);font-size:11px;margin-top:12px">Este é um link do modelo antigo — para acompanhar ao vivo, peça um link novo à loja.</div>'}
+    ${hasCloud(DATA)?'':'<div style="text-align:center;color:var(--mut);font-size:11px;margin-top:12px">Este é um link do modelo antigo — para acompanhar ao vivo, peça um link novo à loja.</div>'}
   </div>`;
   const b=$('btnUpd');
-  if(b)b.addEventListener('click',()=>refresh(true));
+  if(b)b.addEventListener('click',()=>refresh());
+}
+/* card de carregamento do LINK PERMANENTE: ainda sem snapshot, só nº da OS + canal */
+function renderMini(d){
+  DATA=d;
+  $('app').innerHTML=`
+  <div class="card">
+    <div class="osnum">${esc(d.n||'')}</div>
+    <div class="upd" id="updLine"><span class="live wait"><i></i>Consultando a nuvem…</span></div>
+    <div class="minibody">Estamos buscando o status atual do seu serviço.<br>Este é o link fixo da sua OS: todas as atualizações da loja aparecem aqui automaticamente.</div>
+    <div class="btnrow">
+      <button id="btnUpd">ATUALIZAR</button>
+    </div>
+  </div>`;
+  const b=$('btnUpd');
+  if(b)b.addEventListener('click',()=>refresh());
 }
 function statusLine(mode){
   const ul=$('updLine');
   if(!ul||!DATA)return;
   if(mode==='live')ul.innerHTML=`<span class="live"><i></i>AO VIVO — verificado às ${fmtH(Date.now())}</span>`;
-  else if(mode==='warn')ul.innerHTML=`<span class="live warn"><i></i>Sem conexão com a nuvem — exibindo o último status enviado</span>`;
+  else if(mode==='warn')ul.innerHTML=`<span class="live warn"><i></i>Sem conexão com a nuvem — exibindo o último status recebido</span>`;
   else if(mode==='same')ul.innerHTML=`<span class="live off"><i></i>Nenhuma novidade — verificado às ${fmtH(Date.now())}</span>`;
+  else if(mode==='empty')ul.innerHTML=`<span class="live warn"><i></i>A loja ainda não enviou o status pela nuvem — aguarde ou toque em ATUALIZAR</span>`;
+  else if(mode==='wait')ul.innerHTML=`<span class="live wait"><i></i>Consultando a nuvem…</span>`;
   else if(mode==='none')ul.innerHTML='Atualizado: '+fmt(DATA.up);
 }
 let POLL=null;
 function startPolling(){
   if(POLL)clearInterval(POLL);
+  POLL=null;
   if(DATA&&DATA.tn){
     POLL=setInterval(()=>{if(!document.hidden)refresh();},20000);
   }
 }
-async function refresh(manual){
-  if(BUSY)return;
+/* busca o snapshot mais recente do canal privado da OS na nuvem */
+async function refresh(){
+  if(BUSY||!DATA||!DATA.tn)return;
   BUSY=true;
   const btn=$('btnUpd');
   if(btn){btn.disabled=true;btn.innerHTML='<span class="spin"></span>BUSCANDO…';}
+  if(!DATA.st&&DATA.n)statusLine('wait');
   let mode='none';
-  if(DATA&&DATA.tn){
-    const topic=DATA.tn;
-    try{
-      const r=await fetch(NTFY+topic+'/json?poll=1&_='+Date.now(),{cache:'no-store'});
-      if(r.ok){
-        const txt=await r.text();
-        const lines=txt.trim()?txt.trim().split('\n'):[];
-        let msg=null;
-        for(const ln of lines){
-          try{
-            const ev=JSON.parse(ln);
-            if(ev&&ev.message){
-              const j=JSON.parse(ev.message);
-              if(j&&j.up&&(!msg||j.up>msg.up))msg=j;
-            }
-          }catch(e){}
-        }
-        let upd=false;
-        if(msg&&DATA&&msg.up>(DATA.up||0)){
+  try{
+    const r=await fetch(NTFY+DATA.tn+'/json?poll=1&_='+Date.now(),{cache:'no-store'});
+    if(r.ok){
+      const txt=await r.text();
+      const lines=txt.trim()?txt.trim().split('\n'):[];
+      let msg=null;
+      for(const ln of lines){
+        try{
+          const ev=JSON.parse(ln);
+          if(ev&&ev.message){
+            const j=JSON.parse(ev.message);
+            if(j&&j.up&&(!msg||j.up>msg.up))msg=j;
+          }
+        }catch(e){}
+      }
+      if(msg){
+        if(!DATA.st||msg.up>(DATA.up||0)){
           render(msg);
-          DATA.tn=DATA.tn||topic;
+          DATA.tn=DATA.tn||msg.tn||DATA.tn;
           startPolling();
-          upd=true;
-        }
-        mode=upd?'live':(msg?'same':'same');
-      }else mode='warn';
-    }catch(e){mode='warn';}
-  }
+          mode='live';
+        }else mode='same';
+      }else{
+        mode=DATA.st?'same':'empty';
+      }
+    }else mode=DATA.st?'warn':'empty';
+  }catch(e){mode=DATA.st?'warn':'empty';}
   statusLine(mode);
   const b2=$('btnUpd');
   if(b2){b2.disabled=false;b2.textContent='ATUALIZAR';}
   BUSY=false;
 }
-try{
-  const h=location.hash.slice(1);
+function openHash(h){
   if(!h)throw 0;
   const d=b64d(h);
-  render(d);
-  if(DATA.tn){
+  if(hasCloud(d)&&!d.st){
+    renderMini(d);
     refresh();
     startPolling();
-    document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
-    window.addEventListener('online',()=>refresh());
+  }else{
+    render(d);
+    if(hasCloud(d)){refresh();startPolling();}
+    else statusLine('none');
   }
+}
+try{
+  openHash(location.hash.slice(1));
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
+  window.addEventListener('online',()=>refresh());
   window.addEventListener('hashchange',()=>{
     try{
       const nh=location.hash.slice(1);if(!nh)return;
-      const nd=b64d(nh);BUSY=false;render(nd);
-      if(DATA.tn)refresh();else statusLine('none');
+      BUSY=false;
+      openHash(nh);
     }catch(e){}
   });
 }catch(e){

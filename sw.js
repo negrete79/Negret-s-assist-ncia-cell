@@ -1,5 +1,5 @@
-/* NEGRET'S — Service Worker (offline-first) v2.1.0 */
-const VERSION = 'negrets-v2.1.0';
+/* NEGRET'S — Service Worker (offline-first) v2.3.0 — fluxo ORDEMFY: orçamento, fotos, peças, sangria, contas */
+const VERSION = 'negrets-v2.3.0';
 const APP_SHELL = [
   './',
   './index.html',
@@ -30,6 +30,8 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
+  /* APIs de nuvem do rastreio (link único busca status aqui): JAMAIS cachear */
+  if (/jsonblob\.com|ntfy\.sh|json\.extendsclass\.com|kvdb\.io/.test(url.hostname)) return;
   /* navegação: rede primeiro, cache como reserva (funciona offline) */
   if (req.mode === 'navigate') {
     e.respondWith(
@@ -44,8 +46,8 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  /* CDNs (jsPDF, QRCode, fontes) e jsonblob: atualiza por trás, serve na hora */
-  if (/cdnjs\.cloudflare\.com|fonts\.(googleapis|gstatic)\.com|jsonblob\.com/.test(url.hostname)) {
+  /* CDNs (jsPDF, QRCode, fontes): atualiza por trás, serve na hora */
+  if (/cdnjs\.cloudflare\.com|fonts\.(googleapis|gstatic)\.com/.test(url.hostname)) {
     e.respondWith(
       caches.match(req).then(hit => {
         const net = fetch(req)
