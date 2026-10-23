@@ -681,7 +681,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 <button id="installBtn" data-act="install"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4 19h16"/></svg>Instalar app</button>
 <div id="toasts"></div>
 <script>
-/* ================= NÚCLEO — NEGRET'S v2.1 ================= */
+/* ================= NÚCLEO — NEGRET'S v2.2 ================= */
 const KEY='negrets_v6', OLD='negrets_v5';
 const FLOW=['analise','reparo','pronto','entregue'];
 const ST={analise:'EM ANÁLISE',reparo:'EM REPARO',pronto:'PRONTO',entregue:'ENTREGUE'};
@@ -880,6 +880,7 @@ function osSave(){
     pags:[],hist:[{s:'analise',t:Date.now()}],ass:tempAss||''
   };
   DB.ordens.unshift(o);save();
+  trackEnsure(o);trackPush(o);
   $('fCli').value='';$('fZap').value='';$('fModelo').value='';$('fImei').value='';$('fDefeito').value='';$('fCond').value='';$('fAcess').value='';$('fValor').value='';$('fEntrada').value='';
   tempSvcs=[];tempCheck=[];tempAss=null;$('signPrev').style.display='none';
   toast('OS '+o.num+' gerada com sucesso!');
@@ -965,31 +966,41 @@ const AVISO={
   pronto:o=>{const f=faltaDe(o);return `Olá ${o.cliente}! Boa notícia: seu ${o.marca} ${o.modelo} (*${o.num}*) está PRONTO! Já pode retirar na loja.${f>0?' Saldo em aberto: '+money(f)+'.':''} — NEGRET'S Assistência`;},
   entregue:o=>`Olá ${o.cliente}! Seu ${o.marca} ${o.modelo} (*${o.num}*) foi entregue. Obrigado pela confiança! — NEGRET'S Assistência`
 };
-/* --- sincronização em tempo real do link (jsonblob, best-effort) --- */
-const JBL='https://jsonblob.com/api/jsonBlob/';
-function trackSnap(o){return {n:o.num,st:o.status,h:(o.hist||[]).map(x=>[x.s,x.t]),up:Date.now(),c:o.cliente,m:o.marca+' '+o.modelo,d:o.defeito,sv:(o.servicos||[]).join(', '),v:+o.valor||0,e:+o.entrada||0,pg:pagoTotal(o),z:limpaTel(DB.config.loja.zap),l:DB.config.loja.nome||"NEGRET'S",g:o.gar||90};}
-async function trackEnsure(o){
-  if(o.trackId||!navigator.onLine)return;
-  try{
-    const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),8000);
-    const r=await fetch(JBL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(trackSnap(o)),signal:ctl.signal});
-    clearTimeout(tm);
-    const loc=r.headers.get('Location')||r.headers.get('location');
-    if(r.ok&&loc){o.trackId=loc.split('/').pop();save();}
-  }catch(e){}
+/* --- sincronização em tempo real do rastreio (nuvem ntfy.sh, tópico privado por OS) --- */
+const NTFY='https://ntfy.sh/';
+const rnd=n=>Array.from(crypto.getRandomValues(new Uint8Array(n))).map(b=>'abcdefghijklmnopqrstuvwxyz234567'[b%32]).join('');
+function trackSnap(o){
+  const s={n:o.num,st:o.status,h:(o.hist||[]).map(x=>[x.s,x.t]),up:Date.now(),c:o.cliente,m:(o.marca+' '+o.modelo).trim(),d:o.defeito||'',sv:(o.servicos||[]).join(', '),v:+o.valor||0,e:+o.entrada||0,pg:pagoTotal(o),z:limpaTel(DB.config.loja.zap),l:DB.config.loja.nome||"NEGRET'S",g:o.gar||90,tn:o.trackTopic||''};
+  if(JSON.stringify(s).length>3200){if(s.sv.length>140)s.sv=s.sv.slice(0,137)+'…';if(s.d.length>120)s.d=s.d.slice(0,117)+'…';if(s.h.length>8)s.h=s.h.slice(-8);}
+  return s;
 }
-async function trackPush(o){
-  if(!o.trackId||!navigator.onLine)return;
-  try{
-    const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),8000);
-    await fetch(JBL+o.trackId,{method:'PUT',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(trackSnap(o)),signal:ctl.signal});
-    clearTimeout(tm);
-  }catch(e){}
+function trackEnsure(o){
+  if(!o.trackTopic){o.trackTopic='negrets-os-'+String(o.num||'').toLowerCase().replace(/[^a-z0-9]/g,'')+'-'+rnd(5);save();}
+}
+async function trackPub(o,tries){
+  if(!o.trackTopic)return false;
+  if(!navigator.onLine){o.trackDirty=true;save();return false;}
+  tries=tries||2;
+  while(tries-->0){
+    try{
+      const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),7000);
+      const r=await fetch(NTFY+o.trackTopic,{method:'POST',body:JSON.stringify(trackSnap(o)),signal:ctl.signal});
+      clearTimeout(tm);
+      if(r.ok){o.trackDirty=false;save();return true;}
+    }catch(e){}
+    if(tries)await new Promise(res=>setTimeout(res,1500));
+  }
+  o.trackDirty=true;save();return false;
+}
+async function trackPush(o){if(!o)return;trackEnsure(o);return trackPub(o);}
+async function flushTrack(boot){
+  if(!navigator.onLine)return;
+  const alvo=DB.ordens.filter(o=>o.trackDirty||boot);
+  for(const o of alvo){await trackPush(o);await new Promise(res=>setTimeout(res,400));}
 }
 function trackLink(o){
   const base=location.href.split('#')[0].replace(/index\.html.*$/,'');
-  const p=trackSnap(o);p.up=o.atualizado||Date.now();
-  if(o.trackId)p.b=o.trackId;
+  const p=trackSnap(o);p.up=o.atualizado||Date.now();p.tn=o.trackTopic||'';
   return base+'track.html#'+b64e(p);
 }
 function avancar(id){
@@ -1004,17 +1015,18 @@ function avancar(id){
   $('avFalta').innerHTML=falta>0?`<div style="background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.4);border-radius:12px;padding:12px;font-size:13.5px;color:#e6dfc8;display:flex;align-items:center;gap:10px"><span style="flex:1">Falta <b style="color:var(--gold)">${money(falta)}</b> desta OS.</span><button class="btn sm" data-act="avReceber" type="button">RECEBER AGORA</button></div>`:'';
   $('avLink').checked=true;mopen('mAvanco');
 }
-async function confirmarAvanco(notify){
+function confirmarAvanco(notify){
   if(!avOs)return;
   const {o,nx}=avOs;o.status=nx;o.atualizado=Date.now();
-  o.hist=(o.hist||[]).concat([{s:nx,t:Date.now()}]);save();
+  o.hist=(o.hist||[]).concat([{s:nx,t:Date.now()}]);
+  trackEnsure(o);save();
   if(notify){
     let msg=AVISO[nx](o);
-    if($('avLink').checked){await trackEnsure(o);msg+='\n\nAcompanhe seu serviço em tempo real: '+trackLink(o);}
+    if($('avLink').checked)msg+='\n\nAcompanhe seu serviço em tempo real: '+trackLink(o);
     const zap=limpaTel(o.whats);
     window.open('https://wa.me/'+zap+'?text='+encodeURIComponent(msg),'_blank');
   }
-  trackPush(o);
+  trackPush(o).then(ok=>{if(ok)toast('Nuvem do rastreio atualizada.');else toast('Sem internet — o rastreio sincroniza quando a conexão voltar.');});
   mclose('mAvanco');avOs=null;
   renderOs();renderPainel();renderClientes();toast('Status avançado para '+ST[nx]+'.');
 }
@@ -1023,9 +1035,9 @@ function osWa(id){
   const msg=`*${o.num}* — NEGRET'S Assistência\nCliente: ${o.cliente}\nAparelho: ${o.marca} ${o.modelo}\nDefeito: ${o.defeito}\n${o.servicos&&o.servicos.length?'Serviços: '+o.servicos.join(', ')+'\n':''}Status: ${ST[o.status]}\nTotal: ${money(o.valor)} — Pago: ${money(pagoTotal(o))}\nFalta: ${money(faltaDe(o))}\n\nAcompanhe: ${trackLink(o)}`;
   window.open('https://wa.me/'+limpaTel(o.whats)+'?text='+encodeURIComponent(msg),'_blank');
 }
-async function osLink(id){
+function osLink(id){
   const o=DB.ordens.find(x=>x.id===id);if(!o)return;
-  await trackEnsure(o);
+  trackEnsure(o);save();
   curLink=trackLink(o);curVenda=null;
   $('linkBox').textContent=curLink;mopen('mLink');
 }
@@ -1784,12 +1796,14 @@ function admOk(){
   $('admPass').value='';mclose('mSenha');
   if(ctx.purpose==='cfg'){sessionStorage.setItem('negretsAdm','1');cfgFill();mopen('mCfg');}
   else if(ctx.purpose==='delVenda'){
+    let osRef=null;
     const v=DB.vendas.find(x=>x.id===ctx.id);if(!v)return;
     v.itens.forEach(it=>{
       if(it.pid){const pr=DB.produtos.find(x=>x.id===it.pid);if(pr)pr.estoque=(+pr.estoque||0)+it.qtd;}
-      if(it.refOS&&it.pagId){const o=DB.ordens.find(x=>x.id===it.refOS);if(o)o.pags=(o.pags||[]).filter(pg=>pg.id!==it.pagId);}
+      if(it.refOS&&it.pagId){const o=DB.ordens.find(x=>x.id===it.refOS);if(o){o.pags=(o.pags||[]).filter(pg=>pg.id!==it.pagId);osRef=o;}}
     });
     DB.vendas=DB.vendas.filter(x=>x.id!==ctx.id);save();
+    if(osRef)trackPush(osRef);
     renderVendas();renderPainel();renderOs();renderProdutos();toast('Venda excluída — estoque e pagamentos devolvidos.');
   }
   else if(ctx.purpose==='delOs'){DB.ordens=DB.ordens.filter(x=>x.id!==ctx.id);save();renderOs();renderPainel();renderVendas();toast('Ordem excluída.');}
@@ -1954,7 +1968,9 @@ load();
 proxNumTxt();renderCheckChips();renderSvcChips();renderRespSel();renderVendSel();renderCliDl();
 renderPainel();renderOs();renderVendas();renderSplits();renderProdutos();renderClientes();renderFin();renderCad();
 signInit();
-setTimeout(()=>{DB.ordens.forEach(o=>trackPush(o));},2500);
+setTimeout(()=>flushTrack(true),2500);
+setInterval(()=>flushTrack(false),10*60*1000);
+window.addEventListener('online',()=>flushTrack(false));
 window.addEventListener('load',()=>{
   if('serviceWorker' in navigator){try{navigator.serviceWorker.register('./sw.js');}catch(e){}}
 });

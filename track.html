@@ -20,7 +20,7 @@ body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--sans);min-hei
 .brand small{display:block;font-size:9.5px;letter-spacing:.36em;color:var(--mut);margin-top:5px}
 .card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:18px;width:100%;max-width:430px;padding:22px 20px;margin-top:20px}
 .osnum{font-family:var(--serif);color:var(--gold);font-size:19px;letter-spacing:.06em;text-align:center}
-.upd{text-align:center;color:var(--mut);font-size:11.5px;margin-top:4px;letter-spacing:.06em}
+.upd{text-align:center;color:var(--mut);font-size:11.5px;margin-top:4px;letter-spacing:.06em;min-height:18px}
 .tl{margin:26px 0 8px}
 .tl-step{display:flex;gap:14px;position:relative;padding-bottom:26px}
 .tl-step:last-child{padding-bottom:0}
@@ -51,12 +51,18 @@ body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--sans);min-hei
 .badge{display:block;text-align:center;margin:14px auto 0;width:fit-content;font-size:10px;letter-spacing:.2em;border-radius:99px;padding:6px 16px;border:1px solid rgba(212,175,55,.45);color:var(--gold);background:rgba(212,175,55,.07)}
 .btnrow{display:flex;gap:10px;margin-top:16px}
 .btnrow a,.btnrow button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(180deg,#e2c14f,#c19a2e);color:#141005;font-weight:600;border:0;border-radius:12px;padding:13px 10px;font-size:13px;letter-spacing:.05em;cursor:pointer;text-decoration:none}
+.btnrow button:disabled{opacity:.65;cursor:wait}
 .btnrow .g{background:none;border:1px solid #2c2a20;color:var(--gold)}
 .err{max-width:430px;width:100%;text-align:center;margin-top:60px}
 .err h1{font-family:var(--serif);font-size:20px;color:var(--gold);letter-spacing:.06em}
 .err p{color:var(--mut);margin-top:10px;font-size:14px}
 .live{display:inline-flex;align-items:center;gap:6px}
-.live i{width:7px;height:7px;border-radius:50%;background:#7fe8a4;display:inline-block;box-shadow:0 0 8px #7fe8a4}
+.live i{width:7px;height:7px;border-radius:50%;background:#7fe8a4;display:inline-block;box-shadow:0 0 8px #7fe8a4;animation:pul 1.6s infinite}
+.live.warn i{background:#e8b34a;box-shadow:0 0 8px #e8b34a;animation:none}
+.live.off i{background:#777;box-shadow:none;animation:none}
+@keyframes pul{0%,100%{opacity:1}50%{opacity:.35}}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(20,16,5,.35);border-top-color:#141005;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -69,12 +75,16 @@ body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--sans);min-hei
 const LABELS={analise:'EM ANÁLISE',reparo:'EM REPARO',pronto:'PRONTO — RETIRE NA LOJA',entregue:'ENTREGUE'};
 const ORDER=['analise','reparo','pronto','entregue'];
 const DESCR={analise:'Recebemos seu aparelho e nossa equipe está avaliando.',reparo:'Avaliação aprovada — o reparo está em andamento.',pronto:'Seu aparelho está pronto para retirada.',entregue:'Serviço concluído e aparelho entregue. Obrigado!'};
+const NTFY='https://ntfy.sh/';
 function b64d(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return JSON.parse(decodeURIComponent(escape(atob(s))));}
 const esc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
 function money(v){return 'R$ '+(+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmt(t){try{return new Date(t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch(e){return '—';}}
-let DATA=null;
+function fmtH(t){try{return new Date(t).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch(e){return '';}}
+function limpa(s){return String(s||'').replace(/\D/g,'');}
+const $=id=>document.getElementById(id);
+let DATA=null,BUSY=false;
 function render(d){
   DATA=d;
   const cur=ORDER.includes(d.st)?d.st:'analise';
@@ -114,33 +124,86 @@ function render(d){
       <div><span>FALTA</span><b>${money(falta)}</b></div>
     </div>${falta<=0?'<span class="badge" style="border-color:rgba(127,232,164,.5);color:#7fe8a4;background:rgba(127,232,164,.06)">PAGAMENTO QUITADO — OBRIGADO!</span>':''}`:''}
     <div class="btnrow">
-      <button id="btnUpd">ATUALIZAR</button>
+      ${DATA.tn?`<button id="btnUpd">ATUALIZAR</button>`:''}
       ${zap?`<a class="g" href="https://wa.me/${esc(zap)}" target="_blank">FALAR COM A LOJA</a>`:''}
     </div>
+    ${DATA.tn?'':'<div style="text-align:center;color:var(--mut);font-size:11px;margin-top:12px">Este é um link do modelo antigo — para acompanhar ao vivo, peça um link novo à loja.</div>'}
   </div>`;
-  $('btnUpd').addEventListener('click',()=>refresh());
+  const b=$('btnUpd');
+  if(b)b.addEventListener('click',()=>refresh(true));
 }
-function limpa(s){return String(s||'').replace(/\D/g,'');}
-async function refresh(){
-  const btn=$('btnUpd');if(btn)btn.textContent='ATUALIZANDO…';
-  let ok=false;
-  if(DATA&&DATA.b){
-    try{
-      const r=await fetch('https://jsonblob.com/api/jsonBlob/'+DATA.b,{headers:{'Accept':'application/json'}});
-      if(r.ok){const d=await r.json();if(d&&d.up){render(d);ok=true;}}
-    }catch(e){}
-  }
+function statusLine(mode){
   const ul=$('updLine');
-  if(ul)ul.innerHTML=(ok?'<span class="live"><i></i>Status ao vivo — atualizado</span>':'Atualizado:')+' '+fmt(DATA.up);
-  if(btn)btn.textContent='ATUALIZAR';
+  if(!ul||!DATA)return;
+  if(mode==='live')ul.innerHTML=`<span class="live"><i></i>AO VIVO — verificado às ${fmtH(Date.now())}</span>`;
+  else if(mode==='warn')ul.innerHTML=`<span class="live warn"><i></i>Sem conexão com a nuvem — exibindo o último status enviado</span>`;
+  else if(mode==='same')ul.innerHTML=`<span class="live off"><i></i>Nenhuma novidade — verificado às ${fmtH(Date.now())}</span>`;
+  else if(mode==='none')ul.innerHTML='Atualizado: '+fmt(DATA.up);
 }
-const $=id=>document.getElementById(id);
+let POLL=null;
+function startPolling(){
+  if(POLL)clearInterval(POLL);
+  if(DATA&&DATA.tn){
+    POLL=setInterval(()=>{if(!document.hidden)refresh();},20000);
+  }
+}
+async function refresh(manual){
+  if(BUSY)return;
+  BUSY=true;
+  const btn=$('btnUpd');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spin"></span>BUSCANDO…';}
+  let mode='none';
+  if(DATA&&DATA.tn){
+    const topic=DATA.tn;
+    try{
+      const r=await fetch(NTFY+topic+'/json?poll=1&_='+Date.now(),{cache:'no-store'});
+      if(r.ok){
+        const txt=await r.text();
+        const lines=txt.trim()?txt.trim().split('\n'):[];
+        let msg=null;
+        for(const ln of lines){
+          try{
+            const ev=JSON.parse(ln);
+            if(ev&&ev.message){
+              const j=JSON.parse(ev.message);
+              if(j&&j.up&&(!msg||j.up>msg.up))msg=j;
+            }
+          }catch(e){}
+        }
+        let upd=false;
+        if(msg&&DATA&&msg.up>(DATA.up||0)){
+          render(msg);
+          DATA.tn=DATA.tn||topic;
+          startPolling();
+          upd=true;
+        }
+        mode=upd?'live':(msg?'same':'same');
+      }else mode='warn';
+    }catch(e){mode='warn';}
+  }
+  statusLine(mode);
+  const b2=$('btnUpd');
+  if(b2){b2.disabled=false;b2.textContent='ATUALIZAR';}
+  BUSY=false;
+}
 try{
   const h=location.hash.slice(1);
   if(!h)throw 0;
   const d=b64d(h);
   render(d);
-  if(d.b){refresh();setInterval(()=>{if(!document.hidden)refresh();},45000);}
+  if(DATA.tn){
+    refresh();
+    startPolling();
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
+    window.addEventListener('online',()=>refresh());
+  }
+  window.addEventListener('hashchange',()=>{
+    try{
+      const nh=location.hash.slice(1);if(!nh)return;
+      const nd=b64d(nh);BUSY=false;render(nd);
+      if(DATA.tn)refresh();else statusLine('none');
+    }catch(e){}
+  });
 }catch(e){
   $('app').innerHTML='<div class="err"><h1>Link inválido</h1><p>Peça um novo link de acompanhamento à loja pelo WhatsApp.</p></div>';
 }
