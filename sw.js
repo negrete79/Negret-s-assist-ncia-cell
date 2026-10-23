@@ -1,8 +1,9 @@
-/* NEGRET'S — Service Worker (offline-first) */
-const VERSION = 'negrets-v1.0.7';
+/* NEGRET'S — Service Worker (offline-first) v1.1.0 */
+const VERSION = 'negrets-v1.1.0';
 const APP_SHELL = [
   './',
   './index.html',
+  './track.html',
   './manifest.json',
   './icon.svg',
   './icon-maskable.svg'
@@ -29,45 +30,45 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
+  /* navegação: rede primeiro, cache como reserva (funciona offline) */
   if (req.mode === 'navigate') {
     e.respondWith(
       fetch(req)
         .then(res => {
           const copy = res.clone();
-          caches.open(VERSION).then(c => c.put('./index.html', copy));
+          caches.open(VERSION).then(c => c.put(req, copy)).catch(() => {});
           return res;
         })
-        .catch(() => caches.match('./index.html'))
+        .catch(() => caches.match(req).then(r => r || caches.match('./index.html')))
     );
     return;
   }
 
-  if (url.origin === location.origin) {
+  /* CDNs (jsPDF, QRCode, fontes): atualiza por trás, serve na hora */
+  if (/cdnjs\.cloudflare\.com|fonts\.(googleapis|gstatic)\.com/.test(url.hostname)) {
     e.respondWith(
       caches.match(req).then(hit => {
-        const net = fetch(req).then(res => {
-          if (res && res.ok) {
+        const net = fetch(req)
+          .then(res => {
             const copy = res.clone();
-            caches.open(VERSION).then(c => c.put(req, copy));
-          }
-          return res;
-        }).catch(() => hit);
+            caches.open(VERSION).then(c => c.put(req, copy)).catch(() => {});
+            return res;
+          })
+          .catch(() => hit);
         return hit || net;
       })
     );
     return;
   }
 
-  e.respondWith(
-    caches.match(req).then(hit => {
-      const net = fetch(req).then(res => {
-        if (res && (res.ok || res.type === 'opaque')) {
-          const copy = res.clone();
-          caches.open(VERSION).then(c => c.put(req, copy));
-        }
+  /* mesmo domínio: cache primeiro */
+  if (url.origin === location.origin) {
+    e.respondWith(
+      caches.match(req).then(hit => hit || fetch(req).then(res => {
+        const copy = res.clone();
+        caches.open(VERSION).then(c => c.put(req, copy)).catch(() => {});
         return res;
-      }).catch(() => hit);
-      return hit || net;
-    })
-  );
+      }))
+    );
+  }
 });

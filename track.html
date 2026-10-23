@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080808">
+<title>NEGRET'S — Acompanhe seu serviço</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Cpath d='M36 4 68 36 36 68 4 36Z' fill='%23080808' stroke='%23d4af37' stroke-width='3'/%3E%3Ctext x='36' y='48' font-family='Georgia,serif' font-size='32' font-weight='bold' fill='%23d4af37' text-anchor='middle'%3EN%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080808;--card:#121212;--line:#1e1e1e;--gold:#d4af37;--ink:#ece7dc;--mut:#8f897a;--serif:'Cinzel',Georgia,serif;--sans:'Jost','Segoe UI',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--sans);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:34px 18px 50px;-webkit-font-smoothing:antialiased}
+.aura{position:fixed;inset:0;pointer-events:none;background:radial-gradient(600px 300px at 50% -80px,rgba(212,175,55,.12),transparent 70%)}
+.logo{filter:drop-shadow(0 0 18px rgba(212,175,55,.25));position:relative}
+.brand{text-align:center;margin:14px 0 4px}
+.wm{font-family:var(--serif);font-weight:700;font-size:24px;letter-spacing:.3em;margin-right:-.3em;color:var(--gold);display:block}
+.brand small{display:block;font-size:9.5px;letter-spacing:.36em;color:var(--mut);margin-top:5px}
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:18px;width:100%;max-width:430px;padding:22px 20px;margin-top:20px}
+.osnum{font-family:var(--serif);color:var(--gold);font-size:19px;letter-spacing:.06em;text-align:center}
+.upd{text-align:center;color:var(--mut);font-size:11.5px;margin-top:4px;letter-spacing:.06em}
+.tl{margin:26px 0 8px}
+.tl-step{display:flex;gap:14px;position:relative;padding-bottom:26px}
+.tl-step:last-child{padding-bottom:0}
+.tl-step::before{content:'';position:absolute;left:13px;top:30px;bottom:0;width:2px;background:#242218}
+.tl-step:last-child::before{display:none}
+.tl-step.done::before{background:var(--gold)}
+.dot{flex:0 0 auto;width:28px;height:28px;border-radius:50%;border:2px solid #2c2a20;background:#0d0d0d;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.done .dot{border-color:var(--gold);background:rgba(212,175,55,.16)}
+.cur .dot{border-color:var(--gold);background:var(--gold);box-shadow:0 0 0 5px rgba(212,175,55,.15),0 0 18px rgba(212,175,55,.5)}
+.dot svg{width:13px;height:13px;stroke:#0d0d0d;opacity:0}
+.done .dot svg{opacity:1;stroke:var(--gold)}
+.cur .dot svg{opacity:1;stroke:#080808}
+.tl-lb{font-size:15.5px;font-weight:500;color:#5f5a4e;padding-top:3px}
+.done .tl-lb,.cur .tl-lb{color:var(--ink)}
+.cur .tl-lb{color:var(--gold);font-weight:600}
+.tl-when{font-size:11px;color:var(--mut);margin-top:1px;display:none}
+.cur .tl-when,.done .tl-when{display:block}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.gi{background:#0d0d0d;border:1px solid #1e1c15;border-radius:12px;padding:10px 12px}
+.gi.full{grid-column:1/-1}
+.gi span{display:block;font-size:9px;letter-spacing:.24em;color:var(--mut);margin-bottom:4px}
+.gi b{font-weight:500;font-size:14px;color:#eae4d2;word-break:break-word}
+.foot{margin-top:22px;text-align:center;color:var(--mut);font-size:11.5px;letter-spacing:.08em}
+.badge{display:block;text-align:center;margin:14px auto 0;width:fit-content;font-size:10px;letter-spacing:.2em;border-radius:99px;padding:6px 16px;border:1px solid rgba(212,175,55,.45);color:var(--gold);background:rgba(212,175,55,.07)}
+.err{max-width:430px;width:100%;text-align:center;margin-top:60px}
+.err h1{font-family:var(--serif);font-size:20px;color:var(--gold);letter-spacing:.06em}
+.err p{color:var(--mut);margin-top:10px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="aura"></div>
+<svg class="logo" width="72" height="72" viewBox="0 0 72 72"><path d="M36 4 68 36 36 68 4 36Z" fill="#080808" stroke="#d4af37" stroke-width="3"/><path d="M36 14 58 36 36 58 14 36Z" fill="none" stroke="#d4af37" stroke-width="1.4" opacity=".55"/><text x="36" y="49" font-family="Georgia,serif" font-size="30" font-weight="bold" fill="#d4af37" text-anchor="middle">N</text></svg>
+<div class="brand"><span class="wm">NEGRET'S</span><small>ASSISTÊNCIA TÉCNICA &amp; VENDAS</small></div>
+<div id="app"></div>
+<div class="foot">Este link é privado — não compartilhe com outras pessoas.</div>
+<script>
+const LABELS={analise:'EM ANÁLISE',reparo:'EM REPARO',pronto:'PRONTO — RETIRE NA LOJA',entregue:'ENTREGUE'};
+const ORDER=['analise','reparo','pronto','entregue'];
+const DESCR={analise:'Recebemos seu aparelho e nossa equipe está avaliando.',reparo:'Avaliação aprovada — o reparo está em andamento.',pronto:'Seu aparelho está pronto para retirada.',entregue:'Serviço concluído e aparelho entregue. Obrigado!'};
+function b64d(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return JSON.parse(decodeURIComponent(escape(atob(s))));}
+const esc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
+function money(v){return 'R$ '+(+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmt(t){try{return new Date(t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch(e){return '—';}}
+try{
+  const h=location.hash.slice(1);
+  if(!h)throw 0;
+  const d=b64d(h);
+  const cur=ORDER.includes(d.st)?d.st:'analise';
+  const curIdx=ORDER.indexOf(cur);
+  const falta=Math.max(0,(+d.v||0)-(+d.e||0));
+  let tl='';
+  ORDER.forEach((k,i)=>{
+    const done=i<curIdx,isCur=i===curIdx;
+    tl+=`<div class="tl-step ${done?'done':''} ${isCur?'cur':''}">
+      <div class="dot">${CHECK}</div>
+      <div style="flex:1"><div class="tl-lb">${LABELS[k]}</div>
+      <div class="tl-when">${isCur?DESCR[k]:(done?'Concluído':'Aguardando')}</div></div></div>`;
+  });
+  document.getElementById('app').innerHTML=`<div class="card">
+    <div class="osnum">${esc(d.n||'—')}</div>
+    <div class="upd">atualizado em ${fmt(d.up)}</div>
+    <span class="badge">STATUS: ${LABELS[cur]}</span>
+    <div class="tl">${tl}</div>
+    <div class="grid">
+      <div class="gi full"><span>CLIENTE</span><b>${esc(d.c||'—')}</b></div>
+      <div class="gi full"><span>APARELHO</span><b>${esc(d.m||'—')}</b></div>
+      ${d.s?`<div class="gi full"><span>SERVIÇOS</span><b>${esc(d.s)}</b></div>`:''}
+      ${d.d?`<div class="gi full"><span>DEFEITO RELATADO</span><b>${esc(d.d)}</b></div>`:''}
+      <div class="gi"><span>VALOR TOTAL</span><b>${money(d.v)}</b></div>
+      <div class="gi"><span>FALTA PAGAR</span><b>${money(falta)}</b></div>
+    </div>
+  </div>`;
+}catch(e){
+  document.getElementById('app').innerHTML=`<div class="err"><h1>Link inválido</h1><p>Este link de acompanhamento parece incompleto.<br>Peça um novo link para a NEGRET'S pelo WhatsApp.</p></div>`;
+}
+</script>
+</body>
+</html>
