@@ -128,6 +128,12 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 .fg .ph .phx{position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:8px;border:0;background:rgba(0,0,0,.62);color:#ff8a8a;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center}
 .fg .ph-add{aspect-ratio:1;border:1.5px dashed #2c2718;border-radius:10px;background:none;color:var(--gold);font-size:20px;display:flex;align-items:center;justify-content:center}
 .fg-empty{grid-column:1/-1;font-size:12px;color:var(--mut);padding:6px 2px}
+/* ===== câmera do app + retrabalho ===== */
+.cam-wrap{position:relative;background:#000;border-radius:14px;overflow:hidden;border:1px solid #242218}
+.cam-wrap video{display:block;width:100%;max-height:48vh;object-fit:cover;background:#000}
+.cam-wrap.cam-mirror video{transform:scaleX(-1)}
+.cam-err{padding:16px 14px;font-size:13.5px;color:#ffb35c;background:#0d0d0d;text-align:center;line-height:1.55}
+.rt-line{margin-top:6px;font-size:12.5px;color:#ffb35c;line-height:1.4}
 
 /* ===== botões ===== */
 .btn{background:linear-gradient(135deg,var(--gold),#e3c258);color:#080808;border:0;border-radius:12px;padding:11px 16px;font-weight:600;font-size:13.5px;letter-spacing:.06em;transition:.18s;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px}
@@ -369,8 +375,12 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <label class="fld"><span>ACESSÓRIOS DEIXADOS</span><input id="fAcess" placeholder="Ex.: capa, carregador"></label>
   <label class="fld"><span>FOTOS DO APARELHO NA ENTRADA (evidência)</span>
     <div class="fg" id="newFotos"></div>
-    <button class="btn ghost sm" data-act="fotoNova" type="button" style="margin-top:9px">📷 TIRAR / ESCOLHER FOTO</button>
-    <input type="file" id="fotoFile" accept="image/*" capture="environment" style="display:none">
+    <div style="display:flex;gap:8px;margin-top:9px">
+      <button class="btn ghost sm" data-act="fotoNova" type="button" style="flex:1">📷 CÂMERA</button>
+      <button class="btn ghost sm" data-act="fotoNovaFiles" type="button" style="flex:1">🖼️ GALERIA / ARQUIVOS</button>
+    </div>
+    <input type="file" id="fotoFile" accept="image/*" multiple style="display:none">
+    <input type="file" id="fotoFileCam" accept="image/*" capture="environment" style="display:none">
   </label>
   <label class="fld"><span>SERVIÇOS A EXECUTAR</span>
     <div class="chips" id="svcChips"></div>
@@ -604,6 +614,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   </div>
   <label class="fld"><span>FORMA COMBINADA</span><select id="eForma"><option>A combinar</option><option>Pix</option><option>Dinheiro</option><option>Cartão Crédito</option><option>Cartão Débito</option><option>Entrada + restante</option></select></label>
   <button class="btn blk" data-act="osEditSave">SALVAR ALTERAÇÕES</button>
+  <button class="btn ghost blk wide-mt" data-act="retrabEdit" style="border-color:rgba(255,156,60,.45);color:#ffb35c">↺ CLIENTE VOLTOU — ABRIR RETRABALHO / RETORNO</button>
 </div></div>
 
 <div class="mask" id="mAvanco"><div class="sheet">
@@ -629,6 +640,21 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <div class="cs-t" style="margin-top:16px">HISTÓRICO DE STATUS</div>
   <div id="stHist"></div>
   <button class="btn danger blk wide-mt" data-act="stUndo" id="stUndoBtn" style="display:none">↩ DESFAZER ÚLTIMA MUDANÇA (SE AVANÇOU POR ENGANO)</button>
+</div></div>
+
+<div class="mask" id="mRetrab"><div class="sheet">
+  <div class="m-head"><h3>Retorno / Retrabalho da OS</h3><button class="m-x" data-act="mclose">×</button></div>
+  <p class="m-note" id="rtInfo"></p>
+  <div id="rtGar" style="margin:8px 0 2px"></div>
+  <label class="fld req"><span>O QUE O CLIENTE RECLAMOU?</span><textarea id="rtRecl" placeholder="Ex.: tela voltou a piscar, microfone baixo depois do reparo…"></textarea></label>
+  <label class="fld"><span>O APARELHO VOLTA PARA</span><div class="chips" id="rtChips"></div></label>
+  <div class="f2">
+    <label class="fld"><span>ACRÉSCIMO AO VALOR (R$)</span><input id="rtVal" inputmode="decimal" placeholder="0,00"></label>
+    <label class="fld"><span>RESPONSÁVEL TÉCNICO</span><select id="rtResp"></select></label>
+  </div>
+  <p class="m-note">O retrabalho NÃO gera cobrança nova — os pagamentos da OS ficam como estão. Preencha acréscimo só se for cobrar algo fora da garantia.</p>
+  <label style="display:flex;align-items:center;gap:10px;margin:14px 0 4px;font-size:13.5px;color:#cfc9b8"><input type="checkbox" id="rtAvisa" checked style="accent-color:#d4af37;width:17px;height:17px"> Avisar o cliente no WhatsApp que o aparelho voltou para a bancada</label>
+  <button class="btn danger blk wide-mt" data-act="retrabOk">↺ ABRIR RETRABALHO</button>
 </div></div>
 
 <div class="mask" id="mReceber"><div class="sheet">
@@ -689,7 +715,24 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <p class="m-note" id="ftInfo"></p>
   <div class="chips" id="ftTags" style="margin-bottom:10px"></div>
   <div class="fg" id="ftGrid"></div>
-  <button class="btn blk wide-mt" data-act="ftAdd">📷 ADICIONAR FOTO NESTA ETAPA</button>
+  <div style="display:flex;gap:8px" class="wide-mt">
+    <button class="btn blk" data-act="ftCam" style="flex:1">📷 CÂMERA</button>
+    <button class="btn ghost blk" data-act="ftFiles" style="flex:1">🖼️ GALERIA</button>
+  </div>
+</div></div>
+
+<div class="mask" id="mCam"><div class="sheet">
+  <div class="m-head"><h3>Câmera — Foto do Aparelho</h3><button class="m-x" data-act="mclose">×</button></div>
+  <p class="m-note">Enquadre o aparelho e toque em CAPTURAR — pode tirar várias fotos seguidas.</p>
+  <div class="cam-wrap" id="camWrap">
+    <video id="camVideo" autoplay playsinline muted></video>
+    <div class="cam-err" id="camErr" style="display:none"></div>
+  </div>
+  <div class="f2" style="margin-top:10px">
+    <button class="btn ghost blk" data-act="camFlip" type="button">🔄 TROCAR</button>
+    <button class="btn blk" data-act="camShot" type="button">📷 CAPTURAR</button>
+  </div>
+  <button class="btn ghost blk wide-mt" data-act="camFiles" type="button">🖼️ EM VEZ DISSO, ESCOLHER DA GALERIA / ARQUIVOS</button>
 </div></div>
 
 <div class="mask" id="mCaixa"><div class="sheet">
@@ -859,6 +902,7 @@ function load(){
     if(o.status!=='pronto')o.readyAt=0;
     o.imeiSit=SITUACOES.some(p=>p[0]===o.imeiSit)?o.imeiSit:'nao-verificado';o.imeiSitT=+o.imeiSitT||0;
     o.fotos=Array.isArray(o.fotos)?o.fotos:[];o.pecas=Array.isArray(o.pecas)?o.pecas:[];
+    o.retrab=+o.retrab||0;o.retrabHist=Array.isArray(o.retrabHist)?o.retrabHist:[];
   });
   DB.caixa.forEach(c=>{c.v=+c.v||0;c.ts=c.ts||Date.now();c.tipo=c.tipo==='reforco'?'reforco':'sangria';c.obs=c.obs||'';});
   DB.contas.forEach(c=>{c.v=+c.v||0;c.ts=c.ts||Date.now();c.pg=!!c.pg;});
@@ -960,9 +1004,11 @@ function cliHist(id){
   $('chTitle').textContent=c.nome;
   let h='';
   h+='<div class="lb-sec" style="margin:4px 0 8px">ORDENS DE SERVIÇO</div>';
-  h+=os.length?os.map(o=>`<div class="fin-row"><div class="fi"><b>${esc(o.num)} — ${ST[o.status]}</b><span>${fmtDT(o.data)} · ${esc((o.servicos||[]).join(', ')||'—')}</span></div><span class="fv">${money(o.valor)}</span></div>`).join(''):'<div class="empty" style="padding:14px">Nenhuma OS.</div>';
+  h+=os.length?os.map(o=>{const pg=pagoTotal(o),fl=faltaDe(o);return `<div class="fin-row"><div class="fi"><b>${esc(o.num)} — ${ST[o.status]}${o.retrab?` · <span style="color:#ffb35c">↺ ${o.retrab} retrabalho${o.retrab>1?'s':''}</span>`:''}</b><span>${fmtDT(o.data)} · ${esc((o.servicos||[]).join(', ')||'—')}${pg>0?(fl>0?' · pago '+money(pg)+' de '+money(o.valor):' · quitada ✔'):''}</span></div><span class="fv">${money(o.valor)}</span></div>`;}).join(''):'<div class="empty" style="padding:14px">Nenhuma OS.</div>';
   h+='<div class="lb-sec" style="margin:16px 0 8px">COMPRAS NO CAIXA</div>';
-  h+=vs.length?vs.map(v=>`<div class="fin-row"><div class="fi"><b>${esc(v.itens.map(i=>i.nome).join(', ').slice(0,40))}</b><span>${fmtDT(v.data)} · ${esc(v.forma)}</span></div><span class="fv in">${money(v.total)}</span></div>`).join(''):'<div class="empty" style="padding:14px">Nenhuma compra.</div>';
+  /* pagamentos de OS já aparecem na seção ORDENS acima — não repetem aqui (anti cobrança repetida) */
+  const vso=vs.filter(v=>!v.origemOS&&!(v.itens||[]).some(i=>i.refOS));
+  h+=vso.length?vso.map(v=>`<div class="fin-row"><div class="fi"><b>${esc(v.itens.map(i=>i.nome).join(', ').slice(0,40))}</b><span>${fmtDT(v.data)} · ${esc(v.forma)}</span></div><span class="fv in">${money(v.total)}</span></div>`).join(''):'<div class="empty" style="padding:14px">Nenhuma compra.</div>';
   $('chBody').innerHTML=h;mopen('mCliHist');
 }
 function cliWa(id){const c=DB.clientes.find(x=>x.id===id);if(c&&c.tel)window.open('https://wa.me/'+limpaTel(c.tel),'_blank');}
@@ -983,6 +1029,7 @@ function renderRespSel(){
   const tecs=DB.config.equipe.filter(e=>e.cargo==='tecnico');
   const opts='<option value="">— Definir depois —</option>'+tecs.map(e=>`<option value="${esc(e.nome)}">${esc(e.nome)}</option>`).join('');
   $('fResp').innerHTML=opts;$('eResp').innerHTML=opts;
+  const rs=$('rtResp');if(rs)rs.innerHTML=opts;
 }
 function renderVendSel(){
   const vs=DB.config.equipe.filter(e=>e.cargo==='vendedor');
@@ -1066,28 +1113,80 @@ function fotoCompress(file,cb){
   };
   rd.readAsDataURL(file);
 }
-let fotoQueue=null; /* 'new' | 'os' — onde a foto tirada entra */
-function fotoNova(){fotoQueue='new';$('fotoFile').value='';$('fotoFile').click();}
-function ftAdd(){fotoQueue='os';$('fotoFile').value='';$('fotoFile').click();}
-function fotoFileChange(e){
-  const f=e.target.files&&e.target.files[0];e.target.value='';
-  if(!f)return;
-  if(!/^image\//.test(f.type)){toast('Escolha um arquivo de imagem.');return;}
-  toast('Processando foto…');
-  fotoCompress(f,d=>{
-    if(fotoQueue==='new'){
-      tempFotos.push({tag:'entrada',d,t:Date.now()});
-      renderNewFotos();toast('Foto adicionada à entrada.');
-    }else if(fotoQueue==='os'){
-      const o=DB.ordens.find(x=>x.id===fotoOsId);if(!o)return;
-      const n=(o.fotos||[]).filter(x=>x.tag===fotoTag).length;
-      if(n>=4){toast('Máximo de 4 fotos por etapa — remova uma para add outra.');return;}
-      o.fotos=(o.fotos||[]).concat([{tag:fotoTag,d,t:Date.now()}]);
-      try{save();}catch(err){o.fotos.pop();toast('Memória cheia — exclua fotos antigas.');return;}
-      renderFtTags();renderFtGrid();renderOs();toast('Foto salva na etapa '+FOTOS_LB[fotoTag]+'.');
-    }
-    fotoQueue=null;
+let fotoQueue=null; /* 'new' | 'os' — onde a foto entra */
+let camStream=null,camFace='environment';
+function pickFotos(){$('fotoFile').value='';$('fotoFile').click();}
+/* CÂMERA abre a câmera DENTRO do app (funciona no celular e no PC, onde o input capture falha).
+   Se o navegador bloquear getUserMedia, cai para a câmera do sistema (input com capture). */
+function fotoNova(){camOpen('new');}
+function ftAdd(){camOpen('os');}
+function camOpen(queue){
+  fotoQueue=queue;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    toast('Sem acesso à câmera aqui — abrindo a câmera do sistema…');
+    $('fotoFileCam').value='';$('fotoFileCam').click();return;
+  }
+  $('camErr').style.display='none';
+  mopen('mCam');camStart();
+}
+function camStart(){
+  const v=$('camVideo');if(!v)return;
+  camStopTracks();
+  $('camErr').style.display='none';
+  $('camWrap').classList.toggle('cam-mirror',camFace==='user');
+  navigator.mediaDevices.getUserMedia({video:{facingMode:camFace,width:{ideal:1280},height:{ideal:1280}},audio:false}).then(s=>{
+    camStream=s;v.srcObject=s;const pl=v.play();if(pl&&pl.catch)pl.catch(()=>{});
+  }).catch(err=>{
+    const nm=(err&&err.name)||'erro';
+    const m=nm==='NotAllowedError'?'Permissão de câmera negada — autorize no cadeado do navegador, ou use GALERIA / ARQUIVOS abaixo.':(nm==='NotFoundError'?'Nenhuma câmera encontrada neste dispositivo. Use GALERIA / ARQUIVOS abaixo.':'Não consegui abrir a câmera ('+nm+'). Use GALERIA / ARQUIVOS abaixo ou feche e tente de novo.');
+    const el=$('camErr');el.textContent=m;el.style.display='';
   });
+}
+function camShot(){
+  const v=$('camVideo');
+  if(!camStream||!v||!v.videoWidth){toast('A câmera ainda não está pronta — espere a imagem aparecer.');return;}
+  const cv=document.createElement('canvas');
+  const mx=1280,r=Math.min(1,mx/Math.max(v.videoWidth,v.videoHeight));
+  cv.width=Math.round(v.videoWidth*r);cv.height=Math.round(v.videoHeight*r);
+  const cx=cv.getContext('2d');
+  if($('camWrap').classList.contains('cam-mirror')){cx.translate(cv.width,0);cx.scale(-1,1);}
+  cx.drawImage(v,0,0,cv.width,cv.height);
+  fotoEncaixa(cv.toDataURL('image/jpeg',.6));
+  toast('Foto capturada! Pode tirar outra ou fechar.');
+}
+function camFlip(){camFace=camFace==='environment'?'user':'environment';camStart();}
+function camClose(){camStopTracks();mclose('mCam');}
+function camStopTracks(){
+  if(camStream){try{camStream.getTracks().forEach(t=>t.stop());}catch(e){}camStream=null;}
+  const v=$('camVideo');if(v)v.srcObject=null;
+}
+/* destino comum de toda foto processada (câmera do app, câmera do sistema ou galeria) */
+function fotoEncaixa(d){
+  if(fotoQueue==='new'){
+    tempFotos.push({tag:'entrada',d,t:Date.now()});
+    renderNewFotos();toast('Foto adicionada à entrada.');
+  }else if(fotoQueue==='os'){
+    const o=DB.ordens.find(x=>x.id===fotoOsId);if(!o)return;
+    const n=(o.fotos||[]).filter(x=>x.tag===fotoTag).length;
+    if(n>=4){toast('Máximo de 4 fotos por etapa — remova uma para add outra.');return;}
+    o.fotos=(o.fotos||[]).concat([{tag:fotoTag,d,t:Date.now()}]);
+    try{save();}catch(err){o.fotos.pop();toast('Memória cheia — exclua fotos antigas.');return;}
+    renderFtTags();renderFtGrid();renderOs();toast('Foto salva na etapa '+FOTOS_LB[fotoTag]+'.');
+  }
+}
+/* GALERIA / ARQUIVOS: input sem capture — abre a galeria e o gerenciador de arquivos; aceita várias */
+function fotoFileChange(e){
+  const files=Array.prototype.slice.call(e.target.files||[]);e.target.value='';
+  if(!files.length)return;
+  let i=0;
+  const prox=()=>{
+    if(i>=files.length)return;
+    const f=files[i++];
+    if(!/^image\//.test(f.type)){toast('"'+(f.name||'arquivo')+'" não é imagem — pulado.');prox();return;}
+    toast('Processando foto '+i+'/'+files.length+'…');
+    fotoCompress(f,d=>{fotoEncaixa(d);prox();});
+  };
+  prox();
 }
 function phHTML(f,i){return `<div class="ph"><img src="${f.d}" alt="foto" loading="lazy"><button class="phx" data-act="newFotoDel" data-i="${i}" title="Remover">×</button></div>`;}
 function renderNewFotos(){
@@ -1210,13 +1309,15 @@ function osCard(o){
   const btnEnt=o.status==='pronto'?`<button class="btn ghost sm" data-act="osEntregar" data-id="${o.id}" title="Cliente levou o aparelho — fecha a OS">ENTREGAR ✔</button>`:'';
   const sitBad=o.imeiSit&&SIT_BAD.indexOf(o.imeiSit)>=0;
   const rec=falta>0?`<button class="btn sm" data-act="osReceber" data-id="${o.id}">RECEBER ${money(falta)}</button>`:'';
-  const eg=(o.hist||[]).find(h=>h.s==='entregue');
+  const eg=(o.hist||[]).filter(h=>h.s==='entregue').pop();
   const garAte=eg?eg.t+(+o.gar||90)*864e5:0;
+  const ultRt=(o.retrabHist&&o.retrabHist.length)?o.retrabHist[o.retrabHist.length-1]:null;
   return `<div class="os-card"${atraso?' style="border-color:rgba(224,112,112,.4)"':''}>
-    <div class="os-top"><span class="os-num">${esc(o.num)}</span><span class="badge st-${o.status}">${ST[o.status]}</span>${atraso?`<span class="badge st-atraso">⚠ ${Math.floor(dp)}d AGUARDANDO</span>`:''}<span class="os-data">${fmtD(o.data)}</span></div>
+    <div class="os-top"><span class="os-num">${esc(o.num)}</span><span class="badge st-${o.status}">${ST[o.status]}</span>${atraso?`<span class="badge st-atraso">⚠ ${Math.floor(dp)}d AGUARDANDO</span>`:''}${o.retrab?`<span class="badge st-atraso" style="color:#ffb35c;border-color:rgba(255,156,60,.45);background:rgba(255,156,60,.08)">↺ RETRABALHO ${o.retrab}x</span>`:''}<span class="os-data">${fmtD(o.data)}</span></div>
     <div class="os-cli">${esc(o.cliente)}</div>
     <div class="os-dev">${esc(o.marca)} ${esc(o.modelo)}${o.imei?' — IMEI '+esc(o.imei):''}</div>
     <div class="os-def">${esc(o.defeito)}</div>
+    ${ultRt?`<div class="rt-line">↺ Último retorno: ${esc(String(ultRt.recl||'').slice(0,80))}</div>`:''}
     ${sitBad?`<div style="margin-top:7px;font-size:12.5px;color:#e07070;line-height:1.4">⚠ IMEI ${esc(SIT_LB[o.imeiSit]||'')} — confirme a titularidade do aparelho e a política da loja antes de executar o reparo.</div>`:''}
     ${(o.servicos&&o.servicos.length)?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${o.servicos.map(s=>`<span class="tag">${esc(s)}</span>`).join('')}</div>`:''}
     ${(o.pecas&&o.pecas.length)?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${o.pecas.map(p=>`<span class="tag">🔧 ${p.qtd}x ${esc(p.nome)}</span>`).join('')}</div>`:''}
@@ -1232,6 +1333,7 @@ function osCard(o){
     <div class="acts">
       ${btns}${rec}${btnEnt}
       <button class="btn ghost sm" data-act="osStatus" data-id="${o.id}" title="Mudar status — avançar ou voltar">⇄ STATUS</button>
+      ${(o.status==='pronto'||o.status==='entregue')?`<button class="btn ghost sm" data-act="retrab" data-id="${o.id}" title="Cliente voltou reclamando — reabre a OS sem gerar cobrança nova" style="color:#ffb35c;border-color:rgba(255,156,60,.45)">↺ RETRABALHO</button>`:''}
       <button class="btn ghost sm" data-act="osFotos" data-id="${o.id}">📷 FOTOS</button>
       <button class="btn ghost sm" data-act="osEdit" data-id="${o.id}">EDITAR</button>
       <button class="btn ghost sm" data-act="osSign" data-id="${o.id}" title="Assinatura">✍</button>
@@ -1269,7 +1371,7 @@ function renderBancada(){
 const AVISO={
   analise:o=>`Olá ${o.cliente}! Seu ${o.marca} ${o.modelo} (*${o.num}*) está em ANÁLISE TÉCNICA — em breve enviaremos novidades. — NEGRET'S Assistência`,
   orcamento:o=>{const f=faltaDe(o);return `Olá ${o.cliente}! A avaliação do seu ${o.marca} ${o.modelo} (*${o.num}*) ficou pronta. *ORÇAMENTO: ${money(o.valor)}*${(o.servicos&&o.servicos.length)?' — '+o.servicos.join(', '):''}.${f>0?' Entrada registrada: '+money(pagoTotal(o))+'.':''} Responda APROVADO aqui para começarmos o reparo. — NEGRET'S Assistência`;},
-  reparo:o=>`Olá ${o.cliente}! Orçamento aprovado — seu ${o.marca} ${o.modelo} (*${o.num}*) entrou em REPARO. Avisaremos assim que ficar pronto. — NEGRET'S Assistência`,
+  reparo:o=>`Olá ${o.cliente}! Seu ${o.marca} ${o.modelo} (*${o.num}*) está EM REPARO na bancada. Avisaremos assim que ficar pronto. — NEGRET'S Assistência`,
   pronto:o=>{const f=faltaDe(o);return `Olá ${o.cliente}! Boa notícia: seu ${o.marca} ${o.modelo} (*${o.num}*) está PRONTO! Já pode retirar na loja.${f>0?' Saldo em aberto: '+money(f)+'.':''} — NEGRET'S Assistência`;},
   entregue:o=>`Olá ${o.cliente}! Seu ${o.marca} ${o.modelo} (*${o.num}*) foi entregue. Obrigado pela confiança! — NEGRET'S Assistência`
 };
@@ -1277,7 +1379,7 @@ const AVISO={
 const NTFY='https://ntfy.sh/';
 const rnd=n=>Array.from(crypto.getRandomValues(new Uint8Array(n))).map(b=>'abcdefghijklmnopqrstuvwxyz234567'[b%32]).join('');
 function trackSnap(o){
-  const s={n:o.num,st:o.status,h:(o.hist||[]).map(x=>[x.s,x.t]),up:Date.now(),c:o.cliente,m:(o.marca+' '+o.modelo).trim(),d:o.defeito||'',sv:(o.servicos||[]).join(', '),v:+o.valor||0,e:+o.entrada||0,pg:pagoTotal(o),z:limpaTel(DB.config.loja.zap),l:DB.config.loja.nome||"NEGRET'S",g:o.gar||90,tn:o.trackTopic||''};
+  const s={n:o.num,st:o.status,h:(o.hist||[]).map(x=>[x.s,x.t]),up:Date.now(),c:o.cliente,m:(o.marca+' '+o.modelo).trim(),d:o.defeito||'',sv:(o.servicos||[]).join(', '),v:+o.valor||0,e:+o.entrada||0,pg:pagoTotal(o),z:limpaTel(DB.config.loja.zap),l:DB.config.loja.nome||"NEGRET'S",g:o.gar||90,tn:o.trackTopic||'',rt:o.retrab||0};
   if(JSON.stringify(s).length>3200){if(s.sv.length>140)s.sv=s.sv.slice(0,137)+'…';if(s.d.length>120)s.d=s.d.slice(0,117)+'…';if(s.h.length>8)s.h=s.h.slice(-8);}
   return s;
 }
@@ -1497,6 +1599,58 @@ function stUndo(){
   renderOs();renderPainel();
   toast('Desfeito! Voltou de '+ST[de]+' para '+ST[o.status]+'.');
 }
+
+/* ---------- RETORNO / RETRABALHO — o cliente volta reclamando de algo ----------
+   Reabre a OS para a bancada SEM gerar cobrança nova (os pagamentos ficam como estão).
+   Se estiver na garantia, sugere acréscimo zero; fora da garantia o técnico decide. */
+let rtOs=null,rtDest='reparo';
+function retrabOpen(id){
+  const o=DB.ordens.find(x=>x.id===id);if(!o)return;
+  rtOs=o;rtDest='reparo';
+  $('rtInfo').textContent=o.num+' — '+o.cliente+' · '+(o.marca+' '+o.modelo).trim()+' · '+ST[o.status]+(o.retrab?' · já teve '+o.retrab+' retrabalho'+(o.retrab>1?'s':''):'');
+  const eg=(o.hist||[]).filter(h=>h.s==='entregue').pop();
+  let garHtml='';
+  if(o.status==='pronto'){
+    garHtml='<div style="font-size:12.5px;color:var(--mut)">A OS ainda não foi entregue — use isto como ajuste antes da retirada (volta para a bancada sem tocar na cobrança).</div>';
+  }else if(eg&&+o.gar>0){
+    const fim=eg.t+(+o.gar)*864e5,rest=Math.ceil((fim-Date.now())/864e5);
+    garHtml=rest>0
+      ?'<span class="resp-tag" style="color:#8fd48f;border-color:rgba(143,212,143,.45)">garantia ativa — '+rest+' dia'+(rest===1?'':'s')+' restantes</span><div style="font-size:12.5px;color:var(--mut);margin-top:6px">Dentro da garantia: registre o retrabalho sem acréscimo de valor.</div>'
+      :'<span class="resp-tag">fora da garantia</span><div style="font-size:12.5px;color:var(--mut);margin-top:6px">Fora da garantia: se houver custo novo, informe no acréscimo.</div>';
+  }
+  $('rtGar').innerHTML=garHtml;
+  $('rtRecl').value='';$('rtVal').value='0,00';
+  renderRespSel();const rs=$('rtResp');if(rs)rs.value=o.resp||'';
+  renderRtChips();
+  mopen('mRetrab');setTimeout(()=>$('rtRecl').focus(),80);
+}
+function renderRtChips(){
+  if(!rtOs)return;
+  $('rtChips').innerHTML=['analise','reparo'].map(k=>`<button type="button" class="chip ${rtDest===k?'on':''}" data-act="rtDest" data-s="${k}">${ST[k]}</button>`).join('');
+}
+function retrabOk(){
+  if(!rtOs)return;
+  const o=rtOs,recl=$('rtRecl').value.trim();
+  if(!recl){toast('Descreva o que o cliente reclamou.');return;}
+  const acresc=Math.round(dec($('rtVal').value)*100)/100;
+  const de=o.status,n=(o.retrab||0)+1;
+  o.retrab=n;
+  const respSel=$('rtResp')?$('rtResp').value:'';if(respSel)o.resp=respSel;
+  let nota='RETRABALHO #'+n+' — cliente retornou: '+recl;
+  if(acresc>0){o.valor=Math.round(((+o.valor||0)+acresc)*100)/100;nota+=' · acréscimo '+money(acresc);}
+  o.status=rtDest;o.readyAt=0;o.atualizado=Date.now();
+  o.retrabHist=(o.retrabHist||[]).concat([{n,t:Date.now(),recl,acresc,de,dest:rtDest}]);
+  o.hist=(o.hist||[]).concat([{s:rtDest,t:Date.now(),nota}]);
+  trackEnsure(o);save();
+  if($('rtAvisa').checked){
+    const msg='Olá '+o.cliente+'! Recebemos seu '+o.marca+' '+o.modelo+' de volta (*'+o.num+'*) para o retrabalho #'+n+'. Anotamos: '+recl+'. Vamos verificar com toda atenção e avisamos assim que estiver resolvido. — NEGRET\'S Assistência';
+    window.open('https://wa.me/'+limpaTel(o.whats)+'?text='+encodeURIComponent(msg),'_blank');
+  }
+  trackPush(o);
+  mclose('mRetrab');rtOs=null;
+  renderOs();renderPainel();renderClientes();sseSync();
+  toast('↺ Retrabalho #'+n+' aberto — OS voltou para '+ST[rtDest]+'. Cobrança mantida sem repetição.');
+}
 function osWa(id){
   const o=DB.ordens.find(x=>x.id===id);if(!o)return;
   const msg=`*${o.num}* — NEGRET'S Assistência\nCliente: ${o.cliente}\nAparelho: ${o.marca} ${o.modelo}\nDefeito: ${o.defeito}\n${o.servicos&&o.servicos.length?'Serviços: '+o.servicos.join(', ')+'\n':''}Status: ${ST[o.status]}\nTotal: ${money(o.valor)} — Pago: ${money(pagoTotal(o))}\nFalta: ${money(faltaDe(o))}\n\nAcompanhe: ${trackLink(o)}`;
@@ -1576,11 +1730,23 @@ function registrarPagamentoOs(id,rows){
     o.pags=(o.pags||[]).concat([{id:pagId,v,ts,forma:r.f}]);
     pags.push({f:r.f,v});restante=Math.round((restante-v)*100)/100;
   });
+  if(!pags.length){toast('Nada para registrar — confira os valores.');return null;}
   o.atualizado=ts;
-  const total=rows.reduce((a,r)=>a+r.v,0);
-  const venda={id:uid(),data:ts,itens:[{nome:'OS '+o.num+' — '+(o.servicos[0]||'Serviço técnico'),refOS:o.id,qtd:1,preco:total,custo:0}],sub:total,desc:0,descPct:0,total,pags,forma:rows.map(r=>r.f).join(' + '),origemOS:o.num,cliente:o.cliente,vendedor:''};
-  DB.vendas.unshift(venda);save();
-  trackPush(o);
+  /* COBRANÇA ÚNICA POR OS: em vez de criar uma venda nova a cada recebimento (que aparecia
+     como cobrança repetida no histórico), soma o pagamento na venda que a OS já tem. */
+  let venda=DB.vendas.find(x=>x.itens&&x.itens.some(i=>i.refOS===o.id));
+  if(venda){
+    venda.pags=(venda.pags||[]).concat(pags);
+    venda.total=Math.round(venda.pags.reduce((a,p)=>a+(+p.v||0),0)*100)/100;
+    venda.sub=venda.total;
+    venda.forma=venda.pags.map(p=>p.f).join(' + ');
+    venda.pgTs=ts;
+  }else{
+    const total=pags.reduce((a,r)=>a+r.v,0);
+    venda={id:uid(),data:ts,itens:[{nome:'OS '+o.num+' — '+(o.servicos[0]||'Serviço técnico'),refOS:o.id,qtd:1,preco:total,custo:0}],sub:total,desc:0,descPct:0,total,pags,forma:rows.map(r=>r.f).join(' + '),origemOS:o.num,cliente:o.cliente,vendedor:''};
+    DB.vendas.unshift(venda);
+  }
+  save();trackPush(o);
   renderOs();renderPainel();renderVendas();renderClientes();
   if(faltaDe(o)<=0)toast('OS '+o.num+' QUITADA! ✔');
   return venda;
@@ -1700,7 +1866,7 @@ function renderVendas(){
   $('histList').innerHTML=hs.length?hs.map(v=>{
     const nome=v.itens.length>1?`${esc(v.itens[0].nome)} +${v.itens.length-1}`:esc(v.itens[0]&&v.itens[0].nome);
     return `<div class="hist-item">
-      <div class="hn"><b>${nome}</b><span>${fmtDT(v.data)} — ${esc(v.forma||'—')}${v.cliente?' — '+esc(v.cliente):''}${v.descPct?' — desc. '+v.descPct+'%':(v.desc?' — desc. '+money(v.desc):'')}${v.origemOS?' — OS '+esc(v.origemOS):''}</span></div>
+      <div class="hn"><b>${nome}</b><span>${fmtDT(v.data)} — ${esc(v.forma||'—')}${v.cliente?' — '+esc(v.cliente):''}${v.descPct?' — desc. '+v.descPct+'%':(v.desc?' — desc. '+money(v.desc):'')}${v.origemOS?' — OS '+esc(v.origemOS)+(v.pags&&v.pags.length>1?' · '+v.pags.length+' pagamentos':''):''}</span></div>
       <span class="hv">${money(v.total)}</span>
       <button class="ibtn" data-act="vendaCupom" data-id="${v.id}" title="Cupom">C</button>
       <button class="ibtn del" data-act="vendaDel" data-id="${v.id}" title="Excluir com senha">×</button>
@@ -1789,11 +1955,23 @@ function finalizeSale(p){
     const pr=DB.produtos.find(x=>x.id===it.pid);
     if(pr)pr.estoque=Math.max(0,(+pr.estoque||0)-it.qtd);
   });
-  DB.vendas.unshift(p);save();
+  /* COBRANÇA ÚNICA: se o carrinho era só a OS, soma o pagamento na venda da OS em vez de criar outra */
+  const onlyOs=p.itens.length===1&&p.itens[0].refOS&&!p.itens[0].pid;
+  if(onlyOs&&osOk){
+    const ov=DB.vendas.find(x=>x.itens&&x.itens.some(i=>i.refOS===p.itens[0].refOS));
+    if(ov){
+      ov.pags=(ov.pags||[]).concat(p.pags||[]);
+      ov.total=Math.round(ov.pags.reduce((a,q)=>a+(+q.v||0),0)*100)/100;
+      ov.sub=ov.total;ov.forma=ov.pags.map(q=>q.f).join(' + ');ov.pgTs=p.data;
+      p.mergedInto=ov.id;
+    }
+  }
+  if(!p.mergedInto)DB.vendas.unshift(p);save();
   CART=[];$('inDescPct').value='';$('fVenCli').value='';
   SPLITS.pdv=[{f:'Dinheiro',v:''}];renderSplits();
   renderVendas();renderPainel();renderOs();renderProdutos();
-  curVenda=p;
+  if(p.mergedInto){const ov2=DB.vendas.find(x=>x.id===p.mergedInto);curVenda=ov2||p;}
+  else curVenda=p;
   $('doneVal').textContent=money(p.total);
   $('doneSub').textContent=fmtDT(p.data)+' — '+p.forma+(p.descPct?' — desconto '+p.descPct+'%':'')+(p.origemOS||p.itens.some(i=>i.refOS)?' — pagamento de OS':'');
   mclose('mPix');mopen('mDone');
@@ -2398,7 +2576,7 @@ document.addEventListener('click',e=>{
     case 'goClientes':mclose('mMais');goTab('clientes');break;
     case 'goFin':mclose('mMais');goTab('financeiro');break;
     case 'goCad':mclose('mMais');goTab('cadastros');break;
-    case 'mclose':{const m=t.closest('.mask');if(m)m.classList.remove('on');break;}
+    case 'mclose':{const m=t.closest('.mask');if(m){m.classList.remove('on');if(m.id==='mCam')camStopTracks();}break;}
     case 'admOk':admOk();break;
     case 'cfgSave':cfgSave();break;
     case 'pixTest':pixTest();break;
@@ -2445,6 +2623,17 @@ document.addEventListener('click',e=>{
     case 'ftAdd':ftAdd();break;
     case 'ftTag':ftTag(v);break;
     case 'ftDel':ftDel(i);break;
+    case 'fotoNovaFiles':fotoQueue='new';pickFotos();break;
+    case 'ftCam':ftAdd();break;
+    case 'ftFiles':fotoQueue='os';pickFotos();break;
+    case 'camShot':camShot();break;
+    case 'camFlip':camFlip();break;
+    case 'camClose':camClose();break;
+    case 'camFiles':camStopTracks();mclose('mCam');pickFotos();break;
+    case 'retrab':retrabOpen(id);break;
+    case 'retrabOk':retrabOk();break;
+    case 'rtDest':rtDest=t.dataset.s;renderRtChips();break;
+    case 'retrabEdit':{const oid=editTarget?editTarget.id:'';mclose('mOsEdit');if(oid)retrabOpen(oid);break;}
     case 'pecaAddOs':pecaAddOs();break;
     case 'pecaDelOs':pecaDelOs(i);break;
     case 'osView':{osViewM=t.dataset.v;document.querySelectorAll('#segOs button').forEach(b=>b.classList.toggle('on',b.dataset.v===osViewM));renderOs();break;}
@@ -2523,7 +2712,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&document.activeElement===$('admPass')){admOk();}
   if(e.key==='Enter'&&document.activeElement===$('svcManual')){e.preventDefault();const v=$('svcManual').value.trim();if(v){if(!tempSvcs.includes(v))tempSvcs.push(v);$('svcManual').value='';renderSvcChips();}}
-  if(e.key==='Escape')document.querySelectorAll('.mask.on').forEach(m=>m.classList.remove('on'));
+  if(e.key==='Escape'){document.querySelectorAll('.mask.on').forEach(m=>m.classList.remove('on'));camStopTracks();}
 });
 $('fImei').addEventListener('input',imeiUI);
 $('eImei').addEventListener('input',eImeiUI);
@@ -2534,6 +2723,7 @@ $('qProd').addEventListener('input',renderProdutos);
 $('qCli').addEventListener('input',renderClientes);
 $('qPux').addEventListener('input',()=>renderPux(norm($('qPux').value).trim()));
 $('fotoFile').addEventListener('change',fotoFileChange);
+$('fotoFileCam').addEventListener('change',fotoFileChange);
 $('bkFile').addEventListener('change',e=>{
   const f=e.target.files&&e.target.files[0];e.target.value='';
   if(!f)return;
