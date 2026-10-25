@@ -142,6 +142,8 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 .btn.ghost:active{background:rgba(212,175,55,.1)}
 .btn.danger{background:none;color:#e07070;border:1px solid rgba(224,112,112,.45)}
 .btn.danger:active{background:rgba(224,112,112,.08)}
+.btn.danger.fill{background:#e07070;color:#141414;border-color:#e07070;font-weight:700}
+.btn.danger.fill:active{background:#c95c5c}
 .btn.sm{padding:8px 12px;font-size:12px;min-height:36px;border-radius:10px}
 .btn.blk{width:100%;margin-top:12px}
 .btn.gold-o{background:none;border:1.5px solid var(--gold);color:var(--gold)}
@@ -207,6 +209,9 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 .pitem .pp{color:var(--gold);font-family:var(--serif);font-size:15px;margin-top:4px}
 .pitem .pe{font-size:10px;color:var(--mut);letter-spacing:.08em;margin-top:3px}
 .pitem .pe.zero{color:#e07070}
+.pdv-hoje{display:flex;align-items:baseline;gap:9px;font-size:10px;letter-spacing:.22em;color:var(--mut);margin-bottom:12px;flex-wrap:wrap}
+.pdv-hoje b{font-family:var(--serif);font-size:16.5px;color:var(--gold);letter-spacing:.02em;font-weight:700}
+.pdv-hoje .nv{letter-spacing:.08em}
 .cart-line{display:flex;align-items:center;gap:9px;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:12px;padding:9px 11px;margin-bottom:8px}
 .cart-line .cn{flex:1;min-width:0;font-size:13.5px}
 .cart-line .cn span{display:block;font-size:11px;color:var(--mut)}
@@ -404,7 +409,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <div class="t-title">CAIXA — PDV</div>
   <div class="pdv-cols">
   <div class="pdv-left">
-    <div class="stats" id="pdvStats"></div>
+    <div class="pdv-hoje" id="pdvStats"></div>
     <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="qPdv" placeholder="Lupa: achar produto…" autocomplete="off"></div>
     <div class="pgrid" id="pgrid"></div>
   </div>
@@ -556,6 +561,10 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <div class="cfg-sec"><div class="cs-t">DADOS DE DEMONSTRAÇÃO</div>
     <p class="m-note" style="margin-top:-4px">Adiciona ordens, vendas e estoque de exemplo para testar o app — inclui um aparelho PRONTO há 5 dias para você ver o alerta de retirada funcionando. Não apaga seus dados atuais.</p>
     <button class="btn ghost blk" data-act="demoLoad" type="button">CARREGAR DEMONSTRAÇÃO</button>
+  </div>
+  <div class="cfg-sec" style="border-color:rgba(224,112,112,.4)"><div class="cs-t" style="color:#e07070">ZONA DE RISCO — ZERAR SISTEMA</div>
+    <p class="m-note" style="margin-top:-4px">Apaga TODOS os dados: ordens, vendas, estoque, clientes, caixa, financeiro, fornecedores, equipe e serviços. Mantém só as configurações da loja (nome, Pix, senha). Não dá para desfazer — exporte o backup acima antes de usar.</p>
+    <button class="btn danger fill blk" data-act="zerarTudo" type="button" style="margin-top:10px">🗑 EXCLUIR TUDO — ZERAR O SISTEMA</button>
   </div>
   <button class="btn blk" data-act="cfgSave">SALVAR CONFIGURAÇÕES</button>
 </div></div>
@@ -837,7 +846,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 <button id="installBtn" data-act="install"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4 19h16"/></svg>Instalar app</button>
 <div id="toasts"></div>
 <script>
-/* ================= NÚCLEO — NEGRET'S v3.0 (IMEI online + status livre + botão receber + alerta 3 dias + PWA) ================= */
+/* ================= NÚCLEO — NEGRET'S v3.2 (IMEI online + status livre + receber + alerta 3 dias + retrabalho + PDV enxuto + zerar sistema) ================= */
 const KEY='negrets_v6', OLD='negrets_v5';
 const FLOW=['analise','orcamento','reparo','pronto','entregue'];
 const ST={analise:'EM ANÁLISE',orcamento:'ORÇAMENTO',reparo:'EM REPARO',pronto:'PRONTO',entregue:'ENTREGUE'};
@@ -1857,7 +1866,6 @@ function renderVendas(){
     <button class="pitem" data-act="pdvAdd" data-id="${p.id}" ${(+p.estoque||0)<=0?'style="opacity:.45"':''}>
       <div class="pn">${esc(p.nome)}</div>
       <div class="pp">${money(p.preco)}</div>
-      <div class="pe ${(+p.estoque||0)<=0?'zero':''}">${(+p.estoque||0)<=0?'SEM ESTOQUE':'estoque: '+p.estoque}</div>
     </button>`).join(''):'<div class="empty" style="grid-column:1/-1">'+(q?'Nada encontrado na lupa.':'Cadastre produtos no Estoque ou use Item Avulso / Puxar OS.')+'</div>';
   renderCart();
   const hq=norm($('qHist').value).trim();
@@ -1873,14 +1881,9 @@ function renderVendas(){
     </div>`;}).join(''):'<div class="empty" style="margin-top:8px">'+(hq?'Nada no histórico para essa busca.':'Nenhuma venda registrada ainda.')+'</div>';
 }
 function pdvStats(){
-  const hoje=new Date().toDateString();let fat=0,luc=0,nv=0;
-  DB.vendas.forEach(v=>{
-    let custo=0;(v.itens||[]).forEach(i=>custo+=(i.custo||0)*i.qtd);
-    if(new Date(v.data).toDateString()===hoje){fat+=v.total||0;luc+=(v.total||0)-custo;nv++;}
-  });
-  $('pdvStats').innerHTML=`
-    <div class="stat"><div class="lb">VENDIDO HOJE</div><div class="vl">${money(fat)}</div><div class="sm">${nv} venda${nv===1?'':'s'}</div></div>
-    <div class="stat"><div class="lb">LUCRO HOJE</div><div class="vl">${money(luc)}</div><div class="sm">custos descontados</div></div>`;
+  const hoje=new Date().toDateString();let fat=0,nv=0;
+  DB.vendas.forEach(v=>{if(new Date(v.data).toDateString()===hoje){fat+=v.total||0;nv++;}});
+  $('pdvStats').innerHTML=`<span>TOTAL DO DIA</span><b>${money(fat)}</b><span class="nv">${nv} venda${nv===1?'':'s'}</span>`;
 }
 function pdvAdd(id){
   const p=DB.produtos.find(x=>x.id===id);if(!p)return;
@@ -2549,6 +2552,22 @@ function admOk(){
   else if(ctx.purpose==='delEq'){DB.config.equipe.splice(ctx.i,1);save();renderCad();toast('Pessoa removida da equipe.');}
   else if(ctx.purpose==='delForn'){DB.fornecedores.splice(ctx.i,1);DB.produtos.forEach(p=>{if(p.forn&&fornNome(p.forn)==='')p.forn='';});save();renderCad();renderProdutos();toast('Fornecedor excluído.');}
   else if(ctx.purpose==='delSvc'){DB.config.servicos.splice(ctx.i,1);save();renderCad();renderSvcChips();toast('Serviço excluído.');}
+  else if(ctx.purpose==='zerarTudo'){sistemaZerar();}
+}
+
+/* ---------- ZERAR SISTEMA ---------- */
+function zerarTudo(){admCtx={purpose:'zerarTudo'};$('admNote').textContent='Digite a senha de administrador para EXCLUIR TUDO e ZERAR o sistema.';mopen('mSenha');setTimeout(()=>$('admPass').focus(),80);}
+function sistemaZerar(){
+  if(!window.confirm('ATENÇÃO — ÚLTIMA CHANCE!\n\nIsto apaga TODOS os dados: ordens, vendas, estoque, clientes, caixa, financeiro, fornecedores, equipe e serviços.\nSó ficam as configurações da loja (nome, Pix, senha).\n\nNÃO DÁ PARA DESFAZER!\n\nDica: exporte o backup em Configurações → BACKUP antes.\n\nConfirma APAGAR TUDO agora?')){toast('Nada foi apagado — sistema intacto.');return;}
+  DB.ordens=[];DB.vendas=[];DB.produtos=[];DB.clientes=[];DB.fornecedores=[];DB.despesas=[];DB.caixa=[];DB.contas=[];DB.seq={};
+  DB.config.servicos=['Troca de Tela','Troca de Bateria','Reparo de Placa','Reparo Geral','Limpeza','Venda de Acessório'];
+  DB.config.equipe=[];
+  CART=[];SPLITS={pdv:[{f:'Dinheiro',v:''}],rec:[{f:'Pix',v:''}]};tempSvcs=[];tempCheck=[];tempAss=null;tempFotos=[];
+  save();mclose('mCfg');
+  renderCheckChips();renderSvcChips();renderRespSel();renderVendSel();renderCliDl();renderNewFotos();renderSitChips();proxNumTxt();
+  renderOs();renderVendas();renderSplits();renderProdutos();renderClientes();renderFin();renderCad();
+  goTab('painel');
+  toast('Sistema zerado — todos os dados apagados. ✔');
 }
 
 /* ---------- BACKUP ---------- */
@@ -2650,6 +2669,7 @@ document.addEventListener('click',e=>{
     case 'waLembrete':waLembrete(id);break;
     case 'goAlertas':{document.querySelectorAll('.mask.on').forEach(m=>m.classList.remove('on'));goTab('painel');setTimeout(()=>{const el=$('pnAlertas');if(el&&el.innerHTML)el.scrollIntoView({behavior:'smooth',block:'center'});else toast('Nenhum alerta de retirada no momento. ✔');},150);break;}
     case 'demoLoad':demoCarregar();break;
+    case 'zerarTudo':zerarTudo();break;
     case 'imeiCheck':imeiConsultar('imeiRes',$('fImei').value);break;
     case 'eImeiCheck':imeiConsultar('eImeiRes',$('eImei').value);break;
     case 'imeiOpen':{const u=t.dataset.u,im=t.dataset.imei||'';window.open(u==='blacklist'?'https://www.imeipro.info/blacklist.html?imei='+im:'https://www.imei.info/?imei='+im,'_blank');break;}
