@@ -151,6 +151,11 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 .btn.gold-o{background:none;border:1.5px solid var(--gold);color:var(--gold)}
 .btn.danger.fill{background:#e07070;color:#141414;border-color:#e07070;font-weight:700}
 .btn.danger.fill:active{background:#c95c5c}
+/* v3.4 — EXCLUIR TUDO: apertar e segurar até a barra encher */
+.holdbtn{position:relative;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
+.holdbtn .hold-fill{position:absolute;left:0;top:0;bottom:0;width:0%;max-width:100%;background:rgba(20,20,20,.38);border-radius:inherit;pointer-events:none}
+.holdbtn .hold-lb{position:relative;pointer-events:none;z-index:1}
+.holdbtn.holding{transform:scale(.985);box-shadow:inset 0 0 0 2px rgba(224,112,112,.55)}
 .ibtn{width:34px;height:34px;border-radius:10px;border:1px solid #26241d;background:none;color:var(--gold);font-size:15px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
 .ibtn.del{color:#e07070;border-color:rgba(224,112,112,.35)}
 .chip{background:#0d0d0d;border:1px solid #242218;color:#b6b0a0;border-radius:99px;padding:7px 13px;font-size:12.5px;transition:.18s}
@@ -567,7 +572,8 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   </div>
   <div class="cfg-sec" style="border-color:rgba(224,112,112,.4)"><div class="cs-t" style="color:#e07070">ZONA DE RISCO — ZERAR SISTEMA</div>
     <p class="m-note" style="margin-top:-4px">Apaga TODOS os dados: ordens, vendas, estoque, clientes, caixa, financeiro, fornecedores, equipe e serviços. Mantém só as configurações da loja (nome, Pix, senha). Não dá para desfazer — exporte o backup acima antes de usar.</p>
-    <button class="btn danger fill blk" data-act="zerarTudo" type="button" style="margin-top:10px">🗑 EXCLUIR TUDO — ZERAR O SISTEMA</button>
+    <button class="btn danger fill blk holdbtn" id="btnZerar" type="button" style="margin-top:10px"><span class="hold-fill" id="holdFill"></span><span class="hold-lb" id="holdLb">🗑 EXCLUIR TUDO — ZERAR O SISTEMA</span></button>
+    <p class="m-note" style="text-align:center;margin-top:8px;margin-bottom:0">👆 Aperte e <b style="color:#e07070">SEGURE</b> até a barra encher para excluir.</p>
   </div>
   <button class="btn blk" data-act="cfgSave">SALVAR CONFIGURAÇÕES</button>
 </div></div>
@@ -2734,6 +2740,53 @@ function sistemaZerar(){
   goTab('painel');
   toast('Sistema zerado — todos os dados apagados. ✔');
 }
+
+/* ---------- EXCLUIR TUDO: apertar e segurar até a barra encher (v3.4) ---------- */
+const HOLD_MS=2500;
+let holdTimer=null,holdT0=0;
+function holdStopUI(){
+  if(holdTimer){clearInterval(holdTimer);holdTimer=null;}
+  const b=$('btnZerar');if(b)b.classList.remove('holding');
+  const f=$('holdFill');if(f)f.style.width='0%';
+  const l=$('holdLb');if(l)l.textContent='🗑 EXCLUIR TUDO — ZERAR O SISTEMA';
+}
+function holdCancel(){if(holdTimer){holdStopUI();toast('👆 Segure o botão até a barra encher para excluir.');}}
+function holdBegin(e){
+  const b=$('btnZerar');if(!b)return;
+  if(e&&e.cancelable)e.preventDefault();
+  holdStopUI();
+  b.classList.add('holding');
+  holdT0=Date.now();
+  holdTimer=setInterval(()=>{
+    const p=Math.min(1,(Date.now()-holdT0)/HOLD_MS);
+    const f=$('holdFill'),l=$('holdLb');
+    if(f)f.style.width=(p*100).toFixed(1)+'%';
+    if(l)l.textContent=p<1?'🗑 SEGURANDO… '+Math.round(p*100)+'%':'🗑 APAGANDO…';
+    if(p>=1){
+      holdStopUI();
+      if(navigator.vibrate)try{navigator.vibrate([80,50,80]);}catch(err){}
+      sistemaZerar();
+    }
+  },40);
+}
+(function holdBind(){
+  const b=$('btnZerar');if(!b)return;
+  if(window.PointerEvent){
+    b.addEventListener('pointerdown',holdBegin);
+    b.addEventListener('pointerup',holdCancel);
+    b.addEventListener('pointerleave',holdCancel);
+    b.addEventListener('pointercancel',holdCancel);
+  }else{
+    b.addEventListener('touchstart',holdBegin,{passive:false});
+    b.addEventListener('touchend',holdCancel);
+    b.addEventListener('touchcancel',holdCancel);
+    b.addEventListener('mousedown',holdBegin);
+    b.addEventListener('mouseup',holdCancel);
+    b.addEventListener('mouseleave',holdCancel);
+  }
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+  b.addEventListener('click',e=>e.preventDefault());
+})();
 
 /* ---------- BACKUP ---------- */
 async function bkExp(){
