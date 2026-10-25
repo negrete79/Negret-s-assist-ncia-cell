@@ -1,5 +1,5 @@
-/* ================= NEGRET'S v3.4.0 — Service Worker (PWA offline) ================= */
-const VER = 'negrets-v3.4.0';
+/* ================= NEGRET'S v3.5.0 — Service Worker (PWA offline) ================= */
+const VER = 'negrets-v3.5.0';
 const CORE = [
   './',
   './track.html',
@@ -10,7 +10,8 @@ const CORE = [
   './maskable-192.png',
   './maskable-512.png',
   './offline.html',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js'
 ];
 
 self.addEventListener('install', e => {

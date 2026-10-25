@@ -156,6 +156,19 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 .holdbtn .hold-fill{position:absolute;left:0;top:0;bottom:0;width:0%;max-width:100%;background:rgba(20,20,20,.38);border-radius:inherit;pointer-events:none}
 .holdbtn .hold-lb{position:relative;pointer-events:none;z-index:1}
 .holdbtn.holding{transform:scale(.985);box-shadow:inset 0 0 0 2px rgba(224,112,112,.55)}
+/* v3.5 — olho de privacidade + leitor de código de barras/QR */
+.scan-row{display:flex;gap:8px;align-items:center}
+.scan-row .search{flex:1;min-width:0}
+.scan-row .btn{flex:0 0 auto;margin:0;padding:10px 13px}
+.cod-row{display:flex;gap:8px;align-items:center}
+.cod-row input{flex:1;min-width:0}
+.cod-row .btn{flex:0 0 auto;margin:0;padding:10px 12px;white-space:nowrap}
+.scan-box{margin-top:8px}
+#scanReader{border:1px solid #26241d;border-radius:12px;overflow:hidden;background:#000;min-height:60px}
+#scanReader video{width:100%!important;display:block}
+#scanReader img[alt="Info icon"]{display:none}
+/* v3.5 — rotação: em landscape (telas baixas) o modal usa quase toda a altura */
+@media (orientation:landscape) and (max-height:520px){.sheet{max-height:96vh}}
 .ibtn{width:34px;height:34px;border-radius:10px;border:1px solid #26241d;background:none;color:var(--gold);font-size:15px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
 .ibtn.del{color:#e07070;border-color:rgba(224,112,112,.35)}
 .chip{background:#0d0d0d;border:1px solid #242218;color:#b6b0a0;border-radius:99px;padding:7px 13px;font-size:12.5px;transition:.18s}
@@ -333,7 +346,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 
 <!-- ===== PAINEL ===== -->
 <section class="tab on" id="painel">
-  <div class="t-title">PAINEL DO DIA</div>
+  <div class="t-title">PAINEL DO DIA<button class="ibtn" id="btnOlho" data-act="olhoTgl" type="button" title="Esconder/mostrar os valores" style="margin-left:auto;font-size:16px">👁</button></div>
   <div id="pnSmart"></div>
   <div class="stats" id="pnStats"></div>
   <div class="bars" id="pnBars"></div>
@@ -418,7 +431,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <div class="pdv-cols">
   <div class="pdv-left">
     <div class="pdv-hoje" id="pdvStats"></div>
-    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="qPdv" placeholder="Lupa: achar produto…" autocomplete="off"></div>
+    <div class="scan-row"><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="qPdv" placeholder="Lupa: achar produto ou bater o código…" autocomplete="off"></div><button class="btn ghost" data-act="pdvScan" type="button" title="Ler código de barras/QR com a câmera">📷</button></div>
     <div class="pgrid" id="pgrid"></div>
   </div>
   <div class="pdv-right">
@@ -459,7 +472,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 <section class="tab" id="estoque">
   <div class="t-title">ESTOQUE</div>
   <div class="stats" id="estStats"></div>
-  <div class="search" style="margin-bottom:12px"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="qProd" placeholder="Lupa: produto ou fornecedor…" autocomplete="off"></div>
+  <div class="scan-row" style="margin-bottom:12px"><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="qProd" placeholder="Lupa: produto, fornecedor ou código…" autocomplete="off"></div><button class="btn ghost" data-act="estScan" type="button" title="Ler código de barras/QR com a câmera">📷</button></div>
   <button class="btn blk" data-act="prodNew">+ NOVO PRODUTO</button>
   <div id="prodList" style="margin-top:14px"></div>
 </section>
@@ -581,6 +594,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 <div class="mask" id="mProd"><div class="sheet">
   <div class="m-head"><h3 id="mProdT">Novo Produto</h3><button class="m-x" data-act="mclose">×</button></div>
   <label class="fld req"><span>NOME</span><input id="pNome" placeholder="Ex.: Capinha Moto G15"></label>
+  <label class="fld"><span>CÓDIGO DE BARRAS / QR (OPCIONAL)</span><div class="cod-row"><input id="pCod" placeholder="Bata o código com a câmera ou digite" autocomplete="off"><button class="btn ghost" data-act="prodScan" type="button">📷 LER</button></div></label>
   <div class="f2">
     <label class="fld req"><span>CUSTO (R$)</span><input id="pCusto" inputmode="decimal" placeholder="0,00"></label>
     <label class="fld req"><span>PREÇO DE VENDA (R$)</span><input id="pPreco" inputmode="decimal" placeholder="0,00"></label>
@@ -598,6 +612,12 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <p class="m-note" id="entInfo"></p>
   <label class="fld req"><span>QUANTIDADE QUE ENTROU</span><input id="entQtd" type="number" min="1" inputmode="numeric" placeholder="Ex.: 10"></label>
   <button class="btn blk" data-act="entSave">SOMAR AO ESTOQUE</button>
+</div></div>
+
+<div class="mask" id="mScan"><div class="sheet">
+  <div class="m-head"><h3 id="scanTitle">LER CÓDIGO</h3><button class="m-x" data-act="scanFechar">×</button></div>
+  <div id="scanBox" class="scan-box"><p class="m-note" style="text-align:center">Abrindo a câmera…</p></div>
+  <p class="m-note" style="margin-bottom:0">Lê QR Code, EAN-13, EAN-8, UPC, Code 128, Code 39, Code 93, ITF, Codabar, PDF417 e Aztec. Tem leitor de mesa USB/bluetooth? Toque no campo de busca e dispare o leitor: ele digita o código e aperta Enter sozinho.</p>
 </div></div>
 
 <div class="mask" id="mOsEdit"><div class="sheet">
@@ -1790,11 +1810,13 @@ function renderPainel(){
   });
   const abertas=DB.ordens.filter(o=>o.status!=='entregue').length;
   const arec=DB.ordens.reduce((a,o)=>a+faltaDe(o),0);
+  const off=DB.config.olho==='1',mm='R$ ••••';
+  const ob=$('btnOlho');if(ob){ob.textContent=off?'🙈':'👁';ob.title=off?'Mostrar os valores':'Esconder os valores';}
   $('pnStats').innerHTML=`
-    <div class="stat"><div class="lb">FATURAMENTO HOJE</div><div class="vl">${money(fat)}</div><div class="sm">${nv} venda${nv===1?'':'s'}</div></div>
-    <div class="stat"><div class="lb">LUCRO HOJE</div><div class="vl">${money(luc)}</div><div class="sm">custos descontados</div></div>
+    <div class="stat"><div class="lb">FATURAMENTO HOJE</div><div class="vl">${off?mm:money(fat)}</div><div class="sm">${nv} venda${nv===1?'':'s'}</div></div>
+    <div class="stat"><div class="lb">LUCRO HOJE</div><div class="vl">${off?mm:money(luc)}</div><div class="sm">custos descontados</div></div>
     <div class="stat"><div class="lb">OS EM ABERTO</div><div class="vl">${abertas}</div><div class="sm">na loja agora</div></div>
-    <div class="stat"><div class="lb">A RECEBER (OS)</div><div class="vl">${money(arec)}</div><div class="sm">saldo de todas as OS</div></div>`;
+    <div class="stat"><div class="lb">A RECEBER (OS)</div><div class="vl">${off?mm:money(arec)}</div><div class="sm">saldo de todas as OS</div></div>`;
   /* --- ALERTAS INTELIGENTES: estoque baixo + bancada atrasada --- */
   const lowStq=DB.produtos.filter(p=>(+p.estoque||0)<=3);
   const atrasBnc=DB.ordens.filter(o=>o.status==='reparo'&&diasReparo(o)>=5);
@@ -1865,7 +1887,7 @@ function renderVendas(){
   pdvStats();
   const q=norm($('qPdv').value).trim();
   let ps=DB.produtos;
-  if(q)ps=ps.filter(p=>norm(p.nome+' '+fornNome(p.forn)).includes(q));
+  if(q)ps=ps.filter(p=>norm(p.nome+' '+fornNome(p.forn)+' '+(p.cod||'')).includes(q));
   $('pgrid').innerHTML=ps.length?ps.map(p=>`
     <button class="pitem" data-act="pdvAdd" data-id="${p.id}" ${(+p.estoque||0)<=0?'style="opacity:.45"':''}>
       <div class="pn">${esc(p.nome)}</div>
@@ -2025,7 +2047,7 @@ function renderProdutos(){
   renderEstoqueStats();
   const q=norm($('qProd').value).trim();
   let ps=DB.produtos.slice().sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
-  if(q)ps=ps.filter(p=>norm(p.nome+' '+fornNome(p.forn)).includes(q));
+  if(q)ps=ps.filter(p=>norm(p.nome+' '+fornNome(p.forn)+' '+(p.cod||'')).includes(q));
   $('prodList').innerHTML=ps.length?ps.map(p=>{
     const est=+p.estoque||0,min=+p.min||0,low=est<=min;
     const marg=(+p.preco||0)-(+p.custo||0);
@@ -2033,6 +2055,7 @@ function renderProdutos(){
     return `<div class="os-card">
       <div class="os-top"><span class="os-cli" style="font-size:15.5px;margin-top:0">${esc(p.nome)}</span>
       <span class="badge ${low?'st-analise':'st-pronto'}" style="margin-left:auto">${low?'ESTOQUE BAIXO':'ESTOQUE '+est}</span></div>
+      ${p.cod?`<div class="os-dev" style="margin-top:4px">Código: ${esc(p.cod)}</div>`:''}
       ${fn?`<div class="os-dev" style="margin-top:4px">Fornecedor: ${esc(fn)}</div>`:''}
       <div class="os-val" style="margin-top:10px">
         <span>Preço <b>${money(p.preco)}</b></span>
@@ -2049,12 +2072,12 @@ function renderFornSel(){
   const sel=$('pForn');if(!sel)return;
   sel.innerHTML='<option value="">— Sem fornecedor —</option>'+DB.fornecedores.map(f=>`<option value="${esc(f.id)}">${esc(f.nome)}</option>`).join('');
 }
-function prodNew(){editingProd=null;$('mProdT').textContent='Novo Produto';$('pNome').value='';$('pCusto').value='';$('pPreco').value='';$('pEst').value='';$('pMin').value='';renderFornSel();$('pForn').value='';mopen('mProd');setTimeout(()=>$('pNome').focus(),80);}
-function prodEdit(id){const p=DB.produtos.find(x=>x.id===id);if(!p)return;editingProd=p;$('mProdT').textContent='Editar Produto';$('pNome').value=p.nome;$('pCusto').value=campoDec(p.custo);$('pPreco').value=campoDec(p.preco);$('pEst').value=p.estoque;$('pMin').value=p.min;renderFornSel();$('pForn').value=p.forn||'';mopen('mProd');}
+function prodNew(){editingProd=null;$('mProdT').textContent='Novo Produto';$('pNome').value='';$('pCod').value='';$('pCusto').value='';$('pPreco').value='';$('pEst').value='';$('pMin').value='';renderFornSel();$('pForn').value='';mopen('mProd');setTimeout(()=>$('pNome').focus(),80);}
+function prodEdit(id){const p=DB.produtos.find(x=>x.id===id);if(!p)return;editingProd=p;$('mProdT').textContent='Editar Produto';$('pNome').value=p.nome;$('pCod').value=p.cod||'';$('pCusto').value=campoDec(p.custo);$('pPreco').value=campoDec(p.preco);$('pEst').value=p.estoque;$('pMin').value=p.min;renderFornSel();$('pForn').value=p.forn||'';mopen('mProd');}
 function prodSave(){
   const nome=$('pNome').value.trim();
   if(!nome){toast('Informe o nome do produto.');return;}
-  const data={nome,custo:dec($('pCusto').value),preco:dec($('pPreco').value),estoque:Math.max(0,parseInt($('pEst').value)||0),min:Math.max(0,parseInt($('pMin').value)||0),forn:$('pForn').value||''};
+  const data={nome,cod:$('pCod').value.trim(),custo:dec($('pCusto').value),preco:dec($('pPreco').value),estoque:Math.max(0,parseInt($('pEst').value)||0),min:Math.max(0,parseInt($('pMin').value)||0),forn:$('pForn').value||''};
   if(editingProd)Object.assign(editingProd,data);
   else DB.produtos.unshift({id:uid(),...data});
   save();mclose('mProd');renderProdutos();toast('Produto salvo.');
@@ -2069,6 +2092,88 @@ function entSave(){
   if(q<=0){toast('Informe a quantidade.');return;}
   entProd.estoque=(+entProd.estoque||0)+q;save();mclose('mEntrada');renderProdutos();toast('+'+q+' un. — estoque atualizado.');
 }
+
+/* ---------- LEITOR DE CÓDIGO (v3.5): câmera lê QR + todos os códigos de barras ---------- */
+let _hqP=null,scanQC=null,scanCtx='';
+function ensureScanner(){
+  if(window.Html5Qrcode)return Promise.resolve();
+  if(_hqP)return _hqP;
+  const urls=[
+    'https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js',
+    'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
+    'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js'
+  ];
+  _hqP=new Promise((res,rej)=>{
+    let i=0;
+    const nx=()=>{
+      if(i>=urls.length){_hqP=null;rej(new Error('leitor indisponível'));return;}
+      const s=document.createElement('script');
+      s.src=urls[i++];
+      s.onload=()=>{if(window.Html5Qrcode)res();else nx();};
+      s.onerror=()=>{s.remove();nx();};
+      document.head.appendChild(s);
+    };
+    nx();
+  });
+  return _hqP;
+}
+function scanAbrir(ctx){
+  scanCtx=ctx;
+  $('scanTitle').textContent=ctx==='pdv'?'BATER CÓDIGO — CARRINHO':(ctx==='est'?'BATER CÓDIGO — ESTOQUE':'BATER CÓDIGO DO PRODUTO');
+  mopen('mScan');
+  scanIniciar();
+}
+async function scanIniciar(){
+  const box=$('scanBox');
+  try{
+    await ensureScanner();
+    scanParar();
+    box.innerHTML='<div id="scanReader"></div><p class="m-note" id="scanNota" style="text-align:center;margin-bottom:0">Aponte a câmera para o código — QR, EAN-13/8, UPC, Code 128…</p>';
+    scanQC=new Html5Qrcode('scanReader');
+    await scanQC.start({facingMode:'environment'},{fps:10,qrbox:(vw,vh)=>({width:Math.floor(vw*.85),height:Math.floor(vh*.55)})},txt=>scanResultado(String(txt||'').trim()),()=>{});
+  }catch(e){
+    scanQC=null;
+    box.innerHTML='<p class="m-note" style="text-align:center;color:#e07070">Câmera indisponível neste momento. Você ainda pode:<br>• usar o leitor de mesa USB/bluetooth — toque no campo de busca e dispare o leitor (ele digita e dá Enter);<br>• ou digitar o código na mão.</p>';
+  }
+}
+function scanParar(){
+  if(scanQC){const q=scanQC;scanQC=null;try{q.stop().then(()=>{try{q.clear();}catch(e){}}).catch(()=>{});}catch(e){}}
+}
+function scanFechar(){scanParar();mclose('mScan');}
+function scanResultado(txt){
+  if(!txt)return;
+  if(navigator.vibrate)try{navigator.vibrate(60);}catch(e){}
+  if(scanCtx==='prod'){
+    scanParar();mclose('mScan');
+    $('pCod').value=txt;toast('Código preenchido. ✔');return;
+  }
+  if(scanCtx==='est'){
+    scanParar();mclose('mScan');
+    $('qProd').value=txt;renderProdutos();
+    const achou=DB.produtos.some(p=>(p.cod||'')===txt||norm(p.nome).includes(norm(txt)));
+    toast(achou?'Código na lupa. ✔':'Nenhum produto com esse código — cadastre no + NOVO PRODUTO.');return;
+  }
+  /* pdv: adiciona no carrinho e segue lendo o próximo */
+  const p=DB.produtos.find(x=>(x.cod||'')===txt)
+    ||DB.produtos.find(x=>{const c=String(x.cod||'');return c&&(c.endsWith(txt)||txt.endsWith(c));})
+    ||DB.produtos.find(x=>norm(x.nome)===norm(txt));
+  if(p){pdvAdd(p.id);toast('✔ '+p.nome+' no carrinho — pode bater o próximo.');}
+  else toast('Código '+txt+' sem produto. Cadastre no Estoque.');
+  scanIniciar();
+}
+/* leitor USB/bluetooth (keyboard wedge): digita no campo e confirma com Enter */
+document.addEventListener('keydown',e=>{
+  const t=e.target;
+  if(!t)return;
+  if(t.id==='qPdv'&&e.key==='Enter'){
+    const v=t.value.trim();if(!v)return;
+    const p=DB.produtos.find(x=>(x.cod||'')===v)
+      ||DB.produtos.find(x=>{const c=String(x.cod||'');return c&&(c.endsWith(v)||v.endsWith(c));})
+      ||DB.produtos.find(x=>norm(x.nome).includes(norm(v)));
+    if(p)pdvAdd(p.id);else toast('Nenhum produto para "'+v+'".');
+    t.value='';renderVendas();
+  }else if(t.id==='qProd'&&e.key==='Enter'){renderProdutos();}
+});
 </script>
 <script>
 /* ---------- CUPOM 58MM — impressão térmica, PDF e WhatsApp ---------- */
@@ -2891,6 +2996,11 @@ document.addEventListener('click',e=>{
     case 'goAlertas':{document.querySelectorAll('.mask.on').forEach(m=>m.classList.remove('on'));goTab('painel');setTimeout(()=>{const el=$('pnAlertas');if(el&&el.innerHTML)el.scrollIntoView({behavior:'smooth',block:'center'});else toast('Nenhum alerta de retirada no momento. ✔');},150);break;}
     case 'demoLoad':demoCarregar();break;
     case 'zerarTudo':zerarTudo();break;
+    case 'olhoTgl':DB.config.olho=DB.config.olho==='1'?'':'1';save();renderPainel();toast(DB.config.olho==='1'?'Valores escondidos. 🙈':'Valores visíveis. 👁');break;
+    case 'pdvScan':scanAbrir('pdv');break;
+    case 'estScan':scanAbrir('est');break;
+    case 'prodScan':scanAbrir('prod');break;
+    case 'scanFechar':scanFechar();break;
     case 'imeiCheck':imeiConsultar('imeiRes',$('fImei').value);break;
     case 'eImeiCheck':imeiConsultar('eImeiRes',$('eImei').value);break;
     case 'imeiOpen':{const u=t.dataset.u,im=t.dataset.imei||'';window.open(u==='blacklist'?'https://www.imeipro.info/blacklist.html?imei='+im:'https://www.imei.info/?imei='+im,'_blank');break;}
