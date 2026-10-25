@@ -103,10 +103,7 @@ button{cursor:pointer}
     <div class="card">
       <div class="row" style="justify-content:space-between">
         <span class="os-num" id="osNum">—</span>
-        <span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
-          <span class="badge" id="osRt" style="display:none;color:#ffb35c;border-color:rgba(255,156,60,.45);background:rgba(255,156,60,.08)">↺ RETRABALHO</span>
-          <span class="badge st-analise" id="osSt">—</span>
-        </span>
+        <span class="badge st-analise" id="osSt">—</span>
       </div>
       <div style="font-size:13px;color:var(--mut);margin-top:6px" id="osUpd"></div>
     </div>
@@ -195,19 +192,18 @@ function render(){
   $('hLoja').textContent=snap.l||"NEGRET'S";
   $('osNum').textContent=snap.n;
   const st=$('osSt');st.textContent=ST[snap.st]||snap.st;st.className='badge st-'+snap.st;
-  const rtB=$('osRt');
-  if(rtB){rtB.style.display=snap.rt?'':'none';if(snap.rt)rtB.textContent='↺ RETRABALHO #'+snap.rt+' EM ANDAMENTO';}
   $('osUpd').textContent='Atualizado em '+fmtDT(snap.up||Date.now());
-  /* timeline: o status ATUAL vem do snapshot — assim, no retrabalho, o AGORA volta para a etapa real */
+  /* timeline: percorre o histórico na ordem do fluxo, marca feitos */
   const h=(snap.h||[]).slice().sort((a,b)=>a[1]-b[1]);
-  const feitos={};h.forEach(x=>{feitos[x[0]]=x[1];});
+  const feitos={};h.forEach(x=>feitos[x[0]]=x[1]);
+  let atualIdx=0;
   const flow=['analise','orcamento','reparo','pronto','entregue'];
-  let atualIdx=flow.indexOf(snap.st);if(atualIdx<0)atualIdx=flow.length-1;
+  flow.forEach((k,i)=>{if(feitos[k])atualIdx=i;});
   $('osTl').innerHTML=flow.map((k,i)=>{
     const t=feitos[k];
-    const done=i<=atualIdx;
+    const done=!!t||(i<atualIdx);
     const atual=i===atualIdx;
-    return `<div class="tl-item ${done?'done':''}"><b style="${atual?'color:var(--gold)':''}">${ST[k]}${atual?' · AGORA':''}</b><span>${done&&t?fmtDT(t):'aguardando esta etapa'}</span></div>`;
+    return `<div class="tl-item ${done?'done':''}"><b style="${atual?'color:var(--gold)':''}">${ST[k]}${atual?' · AGORA':''}</b><span>${t?fmtDT(t):'aguardando esta etapa'}</span></div>`;
   }).join('');
   /* aparelho */
   let dv=`<div class="kv"><span>Aparelho</span><b>${esc(snap.m||'—')}</b></div>`;

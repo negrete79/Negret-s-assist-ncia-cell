@@ -1,5 +1,5 @@
-/* ================= NEGRET'S v3.2 — Service Worker (PWA offline) ================= */
-const VER = 'negrets-v3.2.0';
+/* ================= NEGRET'S v3.3 — Service Worker (PWA offline) ================= */
+const VER = 'negrets-v3.3.0';
 const CORE = [
   './',
   './track.html',
@@ -9,7 +9,8 @@ const CORE = [
   './icon-512.png',
   './maskable-192.png',
   './maskable-512.png',
-  './offline.html'
+  './offline.html',
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
 ];
 
 self.addEventListener('install', e => {
