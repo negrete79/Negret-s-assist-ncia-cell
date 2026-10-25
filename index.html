@@ -135,6 +135,9 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 .fg .ph .phx{position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:8px;border:0;background:rgba(0,0,0,.62);color:#ff8a8a;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center}
 .fg .ph-add{aspect-ratio:1;border:1.5px dashed #2c2718;border-radius:10px;background:none;color:var(--gold);font-size:20px;display:flex;align-items:center;justify-content:center}
 .fg-empty{grid-column:1/-1;font-size:12px;color:var(--mut);padding:6px 2px}
+.cam-wrap{background:#000;border-radius:14px;overflow:hidden;margin:2px 0 12px;border:1px solid #242218}
+.cam-wrap video{width:100%;display:block;max-height:50vh;object-fit:cover}
+.photo-wait{display:flex;align-items:center;justify-content:center;color:#5a5140;font-size:11px;letter-spacing:.1em}
 
 /* ===== botões ===== */
 .btn{background:linear-gradient(135deg,var(--gold),#e3c258);color:#080808;border:0;border-radius:12px;padding:11px 16px;font-weight:600;font-size:13.5px;letter-spacing:.06em;transition:.18s;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px}
@@ -381,8 +384,11 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <label class="fld"><span>ACESSÓRIOS DEIXADOS</span><input id="fAcess" placeholder="Ex.: capa, carregador"></label>
   <label class="fld"><span>FOTOS DO APARELHO NA ENTRADA (evidência)</span>
     <div class="fg" id="newFotos"></div>
-    <button class="btn ghost sm" data-act="fotoNova" type="button" style="margin-top:9px">📷 TIRAR / ESCOLHER FOTO</button>
-    <input type="file" id="fotoFile" accept="image/*" capture="environment" style="display:none">
+    <div class="f2" style="margin-top:9px">
+      <button class="btn ghost sm" data-act="camOpen" data-v="new" type="button">📷 CÂMERA</button>
+      <button class="btn ghost sm" data-act="fotoNova" type="button">🖼 GALERIA</button>
+    </div>
+    <input type="file" id="fotoFile" accept="image/*" style="display:none">
   </label>
   <label class="fld"><span>SERVIÇOS A EXECUTAR</span>
     <div class="chips" id="svcChips"></div>
@@ -706,7 +712,20 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <p class="m-note" id="ftInfo"></p>
   <div class="chips" id="ftTags" style="margin-bottom:10px"></div>
   <div class="fg" id="ftGrid"></div>
-  <button class="btn blk wide-mt" data-act="ftAdd">📷 ADICIONAR FOTO NESTA ETAPA</button>
+  <div class="f2 wide-mt">
+    <button class="btn blk" data-act="camOpen" data-v="os" type="button">📷 CÂMERA</button>
+    <button class="btn ghost" data-act="ftAdd" type="button">🖼 GALERIA</button>
+  </div>
+</div></div>
+
+<div class="mask" id="mCam"><div class="sheet">
+  <div class="m-head"><h3>Câmera — Foto do Aparelho</h3><button class="m-x" data-act="camStop">×</button></div>
+  <p class="m-note" id="camNote">Aponte para o aparelho e toque em CAPTURAR — pode tirar várias.</p>
+  <div class="cam-wrap"><video id="camVideo" autoplay playsinline muted></video></div>
+  <div class="f2">
+    <button class="btn ghost blk" data-act="camFlip" type="button">🔄 VIRAR</button>
+    <button class="btn blk" data-act="camShot" type="button">📸 CAPTURAR</button>
+  </div>
 </div></div>
 
 <div class="mask" id="mCaixa"><div class="sheet">
@@ -892,6 +911,7 @@ function load(){
   });
   DB.despesas.forEach(d=>{d.v=+d.v||0;d.ts=d.ts||Date.now();d.desc=d.desc||'';});
   save();
+  migrarFotos();
 }
 function numOS(){const y=new Date().getFullYear();DB.seq[y]=(DB.seq[y]||0)+1;return 'NEG-'+y+'-'+String(DB.seq[y]).padStart(3,'0');}
 function proxNumTxt(){const y=new Date().getFullYear();const n=(DB.seq[y]||0)+1;$('proxNum').textContent='NEG-'+y+'-'+String(n).padStart(3,'0');}
@@ -1031,7 +1051,7 @@ function osSave(){
     check:tempCheck.slice(),gar:90,
     servicos:tempSvcs.slice(),resp:$('fResp').value,
     valor:dec($('fValor').value),entrada:dec($('fEntrada').value),forma:$('fForma').value,
-    pags:[],hist:[{s:'analise',t:Date.now()}],ass:tempAss||'',fotos:tempFotos.slice(),pecas:[]
+    pags:[],hist:[{s:'analise',t:Date.now()}],ass:tempAss||'',fotos:(tempFotos||[]).map(f=>{const id=uid();idbFotoPut(id,f.d).catch(()=>{});return {id,tag:f.tag,t:f.t};}),pecas:[]
   };
   DB.ordens.unshift(o);save();
   trackEnsure(o);trackPush(o);sseSync();
@@ -1069,24 +1089,87 @@ function osEditSave(){
 }
 
 /* ---------- FOTOS DA OS — evidência na entrada, reparo e saída ---------- */
-/* comprime para ~70KB (máx. 900px, JPEG .55) — cabe no localStorage sem estourar */
-function fotoCompress(file,cb){
-  const rd=new FileReader();
-  rd.onload=()=>{
-    const img=new Image();
-    img.onload=()=>{
-      const mx=900,r=Math.min(1,mx/Math.max(img.width,img.height));
-      const cv=document.createElement('canvas');
-      cv.width=Math.round(img.width*r);cv.height=Math.round(img.height*r);
-      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
-      cb(cv.toDataURL('image/jpeg',.55));
-    };
-    img.onerror=()=>toast('Não consegui abrir essa imagem.');
-    img.src=rd.result;
-  };
-  rd.readAsDataURL(file);
+/* v3.3.1: fotos vivem em IndexedDB (não no localStorage); compressão máx. 1024px JPEG .6;
+   object URLs são sempre liberados com revokeObjectURL (sem vazamento de memória). */
+const FOTO_MAX=1024,FOTO_Q=.6;
+let fotoQueue=null,camQueue='os',fotoStream=null,fotoFacing='environment';
+const fotoCache=new Map();
+
+/* ---- IndexedDB: banco 'negrets-fotos', store 'fotos' ({id,d}) ---- */
+let idbP=null;
+function idbOpen(){
+  if(idbP)return idbP;
+  idbP=new Promise((res,rej)=>{
+    const r=indexedDB.open('negrets-fotos',1);
+    r.onupgradeneeded=()=>{try{r.result.createObjectStore('fotos',{keyPath:'id'});}catch(e){}};
+    r.onsuccess=()=>res(r.result);
+    r.onerror=()=>rej(r.error||new Error('IndexedDB indisponível'));
+  }).catch(e=>{idbP=null;throw e;});
+  return idbP;
 }
-let fotoQueue=null; /* 'new' | 'os' — onde a foto tirada entra */
+async function idbFotoPut(id,d){
+  const db=await idbOpen();
+  await new Promise((res,rej)=>{const tx=db.transaction('fotos','readwrite');tx.objectStore('fotos').put({id,d});tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});
+  fotoCache.set(id,d);
+}
+async function idbFotoGet(id){
+  if(!id)return null;
+  if(fotoCache.has(id))return fotoCache.get(id);
+  const db=await idbOpen();
+  const d=await new Promise((res,rej)=>{const rq=db.transaction('fotos','readonly').objectStore('fotos').get(id);rq.onsuccess=()=>res(rq.result?rq.result.d:null);rq.onerror=()=>rej(rq.error);});
+  if(d)fotoCache.set(id,d);
+  return d;
+}
+async function idbFotoDel(id){
+  fotoCache.delete(id);
+  try{const db=await idbOpen();await new Promise((res)=>{const tx=db.transaction('fotos','readwrite');tx.objectStore('fotos').delete(id);tx.oncomplete=res;tx.onerror=res;});}catch(e){}
+}
+async function idbFotosWipe(){
+  fotoCache.clear();
+  try{const db=await idbOpen();await new Promise((res)=>{const tx=db.transaction('fotos','readwrite');tx.objectStore('fotos').clear();tx.oncomplete=res;tx.onerror=res;});}catch(e){}
+}
+async function osFotosDel(osId){
+  const o=DB.ordens.find(x=>x.id===osId);
+  if(!o||!Array.isArray(o.fotos))return;
+  await Promise.allSettled(o.fotos.map(f=>idbFotoDel(f.id)));
+}
+/* migração: fotos antigas com dataURL dentro do localStorage → IndexedDB */
+function migrarFotos(){
+  const jobs=[];let moved=false;
+  DB.ordens.forEach(o=>{
+    if(!Array.isArray(o.fotos))return;
+    o.fotos.forEach(f=>{
+      if(f&&f.d){f.id=f.id||uid();const d=f.d;
+        jobs.push(idbFotoPut(f.id,d).then(()=>{delete f.d;moved=true;}).catch(()=>{}));}
+    });
+  });
+  if(jobs.length)Promise.allSettled(jobs).then(()=>{if(moved){save();console.log("NEGRET'S: fotos antigas migradas para IndexedDB");}});
+}
+/* busca todos os dataURLs de uma OS (para PDF e backup) */
+async function fotosCarregar(o){
+  const out=[];
+  for(const f of (o.fotos||[])){
+    const d=f.d||await idbFotoGet(f.id).catch(()=>null);
+    if(d)out.push({id:f.id,tag:f.tag,t:f.t,d});
+  }
+  return out;
+}
+
+/* ---- compressão: máx 1024px, JPEG .6 — via object URL com revoke imediato ---- */
+function fotoCompress(file,cb){
+  const url=URL.createObjectURL(file);
+  const img=new Image();
+  img.onload=()=>{
+    URL.revokeObjectURL(url);
+    const mx=FOTO_MAX,r=Math.min(1,mx/Math.max(img.width||1,img.height||1));
+    const cv=document.createElement('canvas');
+    cv.width=Math.max(1,Math.round(img.width*r));cv.height=Math.max(1,Math.round(img.height*r));
+    cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    cb(cv.toDataURL('image/jpeg',FOTO_Q));
+  };
+  img.onerror=()=>{URL.revokeObjectURL(url);toast('Não consegui abrir essa imagem.');};
+  img.src=url;
+}
 function fotoNova(){fotoQueue='new';$('fotoFile').value='';$('fotoFile').click();}
 function ftAdd(){fotoQueue='os';$('fotoFile').value='';$('fotoFile').click();}
 function fotoFileChange(e){
@@ -1094,20 +1177,24 @@ function fotoFileChange(e){
   if(!f)return;
   if(!/^image\//.test(f.type)){toast('Escolha um arquivo de imagem.');return;}
   toast('Processando foto…');
-  fotoCompress(f,d=>{
-    if(fotoQueue==='new'){
-      tempFotos.push({tag:'entrada',d,t:Date.now()});
-      renderNewFotos();toast('Foto adicionada à entrada.');
-    }else if(fotoQueue==='os'){
-      const o=DB.ordens.find(x=>x.id===fotoOsId);if(!o)return;
-      const n=(o.fotos||[]).filter(x=>x.tag===fotoTag).length;
-      if(n>=4){toast('Máximo de 4 fotos por etapa — remova uma para add outra.');return;}
-      o.fotos=(o.fotos||[]).concat([{tag:fotoTag,d,t:Date.now()}]);
-      try{save();}catch(err){o.fotos.pop();toast('Memória cheia — exclua fotos antigas.');return;}
-      renderFtTags();renderFtGrid();renderOs();toast('Foto salva na etapa '+FOTOS_LB[fotoTag]+'.');
-    }
-    fotoQueue=null;
-  });
+  fotoCompress(f,d=>fotoAplicar(d));
+}
+/* roteador compartilhado: câmera e galeria entram pelo mesmo caminho */
+function fotoAplicar(d){
+  if(!d)return;
+  if(fotoQueue==='new'){
+    tempFotos.push({tag:'entrada',d,t:Date.now()});
+    renderNewFotos();toast('Foto adicionada à entrada.');
+  }else if(fotoQueue==='os'){
+    const o=DB.ordens.find(x=>x.id===fotoOsId);if(!o)return;
+    const n=(o.fotos||[]).filter(x=>x.tag===fotoTag).length;
+    if(n>=4){toast('Máximo de 4 fotos por etapa — remova uma para add outra.');return;}
+    const id=uid();
+    o.fotos=(o.fotos||[]).concat([{id,tag:fotoTag,t:Date.now()}]);
+    idbFotoPut(id,d).then(()=>{save();renderFtTags();renderFtGrid();renderOs();toast('Foto salva na etapa '+FOTOS_LB[fotoTag]+'.');})
+      .catch(()=>{o.fotos.pop();save();toast('Não consegui salvar a foto.');});
+  }
+  fotoQueue=null;
 }
 function phHTML(f,i){return `<div class="ph"><img src="${f.d}" alt="foto" loading="lazy"><button class="phx" data-act="newFotoDel" data-i="${i}" title="Remover">×</button></div>`;}
 function renderNewFotos(){
@@ -1131,13 +1218,71 @@ function renderFtTags(){
 function renderFtGrid(){
   const o=DB.ordens.find(x=>x.id===fotoOsId);if(!o)return;
   const fs=(o.fotos||[]).filter(x=>x.tag===fotoTag);
-  $('ftGrid').innerHTML=fs.length?fs.map((f,i)=>`<div class="ph"><img src="${f.d}" alt="foto" loading="lazy"><button class="phx" data-act="ftDel" data-i="${(o.fotos||[]).indexOf(f)}" title="Remover">×</button></div>`).join(''):'<div class="fg-empty">Nenhuma foto em '+FOTOS_LB[fotoTag]+' ainda.</div>';
+  $('ftGrid').innerHTML=fs.length?fs.map(f=>{
+    const gi=(o.fotos||[]).indexOf(f);
+    return `<div class="ph"><img alt="foto" loading="lazy" data-fid="${f.id||''}"><button class="phx" data-act="ftDel" data-i="${gi}" title="Remover">×</button></div>`;
+  }).join(''):'<div class="fg-empty">Nenhuma foto em '+FOTOS_LB[fotoTag]+' ainda.</div>';
+  fotoHidratar($('ftGrid'));
+}
+/* carrega os dataURLs do IndexedDB e preenche os <img> aos poucos */
+async function fotoHidratar(w){
+  if(!w)return;
+  const imgs=w.querySelectorAll('img[data-fid]');
+  for(const img of imgs){
+    if(img.getAttribute('src'))continue;
+    const d=await idbFotoGet(img.dataset.fid).catch(()=>null);
+    if(d)img.src=d;
+    else{img.removeAttribute('data-fid');img.className='photo-wait';img.alt='FOTO INDISPONÍVEL';}
+  }
 }
 function ftTag(t){fotoTag=t;renderFtTags();renderFtGrid();}
 function ftDel(i){
   const o=DB.ordens.find(x=>x.id===fotoOsId);if(!o||!(o.fotos||[])[i])return;
+  const f=o.fotos[i];
   o.fotos.splice(i,1);save();
+  if(f&&f.id)idbFotoDel(f.id);
   renderFtTags();renderFtGrid();renderOs();toast('Foto removida.');
+}
+
+/* ---- CÂMERA IN-APP (getUserMedia) — mesma compressão da galeria ---- */
+async function camOpen(q){
+  camQueue=q||'os';fotoQueue=camQueue;
+  $('camNote').textContent='Aponte para o aparelho e toque em CAPTURAR — pode tirar várias.';
+  mopen('mCam');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    $('camNote').textContent='Câmera não suportada neste aparelho — use a GALERIA.';return;
+  }
+  try{
+    fotoStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:fotoFacing,width:{ideal:1920},height:{ideal:1440}},audio:false});
+    const v=$('camVideo');
+    if(v){v.srcObject=fotoStream;v.play().catch(()=>{});}
+  }catch(err){
+    fotoStream=null;
+    $('camNote').textContent='Câmera indisponível ('+(err&&err.name?err.name:'erro')+') — use a GALERIA.';
+    setTimeout(()=>{if($('mCam').classList.contains('on')&&!fotoStream)camStop();},3400);
+  }
+}
+function camShot(){
+  const v=$('camVideo');
+  if(!fotoStream||!v||!v.videoWidth){toast('Câmera ainda não abriu — aguarde um instante.');return;}
+  const mx=FOTO_MAX,r=Math.min(1,mx/Math.max(v.videoWidth,v.videoHeight));
+  const cv=document.createElement('canvas');
+  cv.width=Math.round(v.videoWidth*r);cv.height=Math.round(v.videoHeight*r);
+  cv.getContext('2d').drawImage(v,0,0,cv.width,cv.height);
+  fotoAplicar(cv.toDataURL('image/jpeg',FOTO_Q));
+  fotoQueue=camQueue; /* mantém a fila para permitir várias fotos seguidas */
+  $('camNote').textContent='Foto capturada ✔ — continue ou feche.';
+}
+function camFlip(){
+  fotoFacing=(fotoFacing==='environment')?'user':'environment';
+  if(fotoStream){fotoStream.getTracks().forEach(t=>t.stop());fotoStream=null;}
+  camOpen(camQueue);
+}
+function camStop(){
+  if(fotoStream){fotoStream.getTracks().forEach(t=>t.stop());fotoStream=null;}
+  const v=$('camVideo');if(v)v.srcObject=null;
+  fotoQueue=null;
+  mclose('mCam');
 }
 
 /* ---------- PEÇAS USADAS NA OS — baixa automática no estoque ---------- */
@@ -1959,9 +2104,9 @@ function cupom58(v){
   st.textContent='@page{size:58mm auto;margin:2mm}';
   setTimeout(()=>{window.print();setTimeout(()=>{$('cupom58').classList.remove('on');st.textContent='@page{size:A4;margin:12mm}';},400);},60);
 }
-function cupomPdf(v){
+async function cupomPdf(v){
   if(!v)return;
-  if(!window.jspdf){toast('PDF indisponível (sem internet na 1ª carga).');return;}
+  try{await ensureJsPDF();}catch(e){toast('PDF indisponível — conecte à internet uma vez para carregar o gerador.');return;}
   const {jsPDF}=window.jspdf;
   const L=DB.config.loja;
   const nIt=v.itens.length;
@@ -2040,8 +2185,8 @@ function tracked(doc,x,y,txt,sp,align){
   let sx=x-(align==='center'?total/2:align==='right'?total:0);
   chs.forEach((c,i)=>{doc.text(c,sx,y);sx+=w[i]+sp;});
 }
-function pdfJs(o){
-  if(!window.jspdf){fallbackPrint(o);return;}
+async function pdfJs(o){
+  try{await ensureJsPDF();}catch(e){fallbackPrint(o);return;}
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:'mm',format:'a4'});
   doc.setDrawColor(212,175,55);doc.setLineWidth(.8);doc.rect(12,12,186,273);
@@ -2136,11 +2281,35 @@ function fallbackPrint(o){
 }
 
 /* ---------- PDF COMPLETO DE RESGUARDO (jsPDF) — fotos, assinatura e termo ---------- */
+/* ---- loader resiliente do jsPDF: tenta 3 CDNs antes de desistir (fix do botão PDF) ---- */
+let _jsPDFP=null;
+function ensureJsPDF(){
+  if(window.jspdf&&window.jspdf.jsPDF)return Promise.resolve();
+  if(_jsPDFP)return _jsPDFP;
+  const urls=[
+    'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+    'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js',
+    'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js'
+  ];
+  _jsPDFP=new Promise((res,rej)=>{
+    let i=0;
+    const nx=()=>{
+      if(i>=urls.length){_jsPDFP=null;rej(new Error('jsPDF indisponível'));return;}
+      const s=document.createElement('script');
+      s.src=urls[i++];
+      s.onload=()=>{if(window.jspdf&&window.jspdf.jsPDF)res();else nx();};
+      s.onerror=()=>{s.remove();nx();};
+      document.head.appendChild(s);
+    };
+    nx();
+  });
+  return _jsPDFP;
+}
 function pdfNomeOs(o){
   const n=ascii(String(o.cliente||'CLIENTE')).trim().replace(/\s+/g,'-').replace(/[^a-zA-Z0-9\-]/g,'');
   return 'OS-'+String(o.num||'0000')+'-'+(n||'CLIENTE')+'.pdf';
 }
-function pdfOsDoc(o){
+function pdfOsDoc(o,fts){
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:'mm',format:'a4'});
   const L=DB.config.loja;
@@ -2212,8 +2381,8 @@ function pdfOsDoc(o){
     doc.text('Subtotal de peças: '+fmtV(tc),188,y+4,{align:'right'});y+=7;
   }else{par('Nenhuma peça utilizada.');}
 
-  /* 7 — FOTOS */
-  const fts=(o.fotos||[]).slice().sort((a,b)=>(a.t||0)-(b.t||0));
+  /* 7 — FOTOS (dataURLs já carregados do IndexedDB via fotosCarregar) */
+  fts=(fts||[]).slice().sort((a,b)=>(a.t||0)-(b.t||0));
   if(fts.length){
     let h1=58;
     try{const p0=doc.getImageProperties(fts[0].d);h1=Math.min(58,80*(p0.height||3)/(p0.width||4));}catch(e){}
@@ -2276,9 +2445,16 @@ function pdfOsDoc(o){
   doc.text("Documento gerado pelo sistema NEGRET'S em "+fmtDT(Date.now())+' — resguardo jurídico da loja.',21,y+2);
   return doc;
 }
-function pdfOsCompleto(o){
-  if(!window.jspdf){toast('PDF indisponível — abra o app com internet uma vez para carregar o gerador.');return;}
-  try{pdfOsDoc(o).save(pdfNomeOs(o));toast('PDF completo baixado ✔');}
+async function pdfOsCompleto(o){
+  toast('Gerando PDF completo…');
+  try{await ensureJsPDF();}
+  catch(e){toast('PDF indisponível — conecte à internet uma vez para carregar o gerador.');return;}
+  try{
+    const fts=await fotosCarregar(o);
+    if((o.fotos||[]).length&&!fts.length)toast('Algumas fotos não foram encontradas — o PDF sai sem elas.');
+    pdfOsDoc(o,fts).save(pdfNomeOs(o));
+    toast('PDF completo baixado ✔');
+  }
   catch(e){console.error(e);toast('Não consegui gerar o PDF (foto corrompida?).');}
 }
 
@@ -2531,7 +2707,7 @@ function admOk(){
     if(osRef)trackPush(osRef);
     renderVendas();renderPainel();renderOs();renderProdutos();toast('Venda excluída — estoque e pagamentos devolvidos.');
   }
-  else if(ctx.purpose==='delOs'){DB.ordens=DB.ordens.filter(x=>x.id!==ctx.id);save();renderOs();renderPainel();renderVendas();toast('Ordem excluída.');}
+  else if(ctx.purpose==='delOs'){osFotosDel(ctx.id);DB.ordens=DB.ordens.filter(x=>x.id!==ctx.id);save();renderOs();renderPainel();renderVendas();toast('Ordem excluída.');}
   else if(ctx.purpose==='delCli'){DB.clientes=DB.clientes.filter(x=>x.id!==ctx.id);save();renderClientes();renderCliDl();toast('Cliente excluído do cadastro.');}
   else if(ctx.purpose==='delSaida'){DB.despesas=DB.despesas.filter(x=>x.id!==ctx.id);save();renderFin();toast('Saída excluída.');}
   else if(ctx.purpose==='delCx'){DB.caixa=DB.caixa.filter(x=>x.id!==ctx.id);save();renderFin();toast('Movimentação de caixa excluída.');}
@@ -2551,6 +2727,7 @@ function sistemaZerar(){
   DB.config.servicos=['Troca de Tela','Troca de Bateria','Reparo de Placa','Reparo Geral','Limpeza','Venda de Acessório'];
   DB.config.equipe=[];
   CART=[];SPLITS={pdv:[{f:'Dinheiro',v:''}],rec:[{f:'Pix',v:''}]};tempSvcs=[];tempCheck=[];tempAss=null;tempFotos=[];
+  idbFotosWipe();
   save();mclose('mCfg');
   renderCheckChips();renderSvcChips();renderRespSel();renderVendSel();renderCliDl();renderNewFotos();renderSitChips();proxNumTxt();
   renderOs();renderVendas();renderSplits();renderProdutos();renderClientes();renderFin();renderCad();
@@ -2559,16 +2736,23 @@ function sistemaZerar(){
 }
 
 /* ---------- BACKUP ---------- */
-function bkExp(){
+async function bkExp(){
   try{
-    const blob=new Blob([JSON.stringify(DB,null,1)],{type:'application/json'});
+    toast('Montando backup (com fotos)…');
+    const data=JSON.parse(JSON.stringify(DB));
+    for(const o of (data.ordens||[])){
+      if(!(o.fotos&&o.fotos.length))continue;
+      const fts=await fotosCarregar(o);
+      o.fotos=o.fotos.map(f=>{const ft=f.id?fts.find(x=>x.id===f.id):null;return ft?{id:f.id,tag:f.tag,t:f.t,d:ft.d}:{id:f.id,tag:f.tag,t:f.t};});
+    }
+    const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
     const a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
     a.download='negrets-backup-'+new Date().toISOString().slice(0,10)+'.json';
     document.body.appendChild(a);a.click();a.remove();
     setTimeout(()=>URL.revokeObjectURL(a.href),4000);
-    toast('Backup exportado! Guarde esse arquivo.');
-  }catch(e){toast('Não foi possível exportar.');}
+    toast('Backup exportado (com fotos)! Guarde esse arquivo.');
+  }catch(e){console.error(e);toast('Não foi possível exportar.');}
 }
 function bkImp(){$('bkFile').click();}
 
@@ -2633,6 +2817,10 @@ document.addEventListener('click',e=>{
     case 'ftAdd':ftAdd();break;
     case 'ftTag':ftTag(v);break;
     case 'ftDel':ftDel(i);break;
+    case 'camOpen':camOpen(v);break;
+    case 'camShot':camShot();break;
+    case 'camFlip':camFlip();break;
+    case 'camStop':camStop();break;
     case 'pecaAddOs':pecaAddOs();break;
     case 'pecaDelOs':pecaDelOs(i);break;
     case 'osView':{osViewM=t.dataset.v;document.querySelectorAll('#segOs button').forEach(b=>b.classList.toggle('on',b.dataset.v===osViewM));renderOs();break;}
@@ -2727,11 +2915,16 @@ $('bkFile').addEventListener('change',e=>{
   const f=e.target.files&&e.target.files[0];e.target.value='';
   if(!f)return;
   const rd=new FileReader();
-  rd.onload=()=>{
+  rd.onload=async()=>{
     try{
       const data=JSON.parse(rd.result);
       if(!data||!Array.isArray(data.ordens))throw 0;
-      if(confirm('Restaurar este backup? Os dados atuais deste aparelho serão substituídos.')){localStorage.setItem(KEY,JSON.stringify(data));location.reload();}
+      if(confirm('Restaurar este backup? Os dados atuais deste aparelho serão substituídos.')){
+        const jobs=[];
+        (data.ordens||[]).forEach(o=>(o.fotos||[]).forEach(f=>{if(f&&f.d)jobs.push(idbFotoPut(f.id||uid(),f.d).catch(()=>{}));}));
+        await Promise.allSettled(jobs);
+        localStorage.setItem(KEY,JSON.stringify(data));location.reload();
+      }
     }catch(err){toast('Arquivo de backup inválido.');}
   };
   rd.readAsText(f);

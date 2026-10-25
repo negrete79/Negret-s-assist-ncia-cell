@@ -1,5 +1,5 @@
-/* ================= NEGRET'S v3.3 — Service Worker (PWA offline) ================= */
-const VER = 'negrets-v3.3.0';
+/* ================= NEGRET'S v3.3.1 — Service Worker (PWA offline) ================= */
+const VER = 'negrets-v3.3.1';
 const CORE = [
   './',
   './track.html',
