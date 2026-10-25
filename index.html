@@ -160,6 +160,9 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 .scan-row{display:flex;gap:8px;align-items:center}
 .scan-row .search{flex:1;min-width:0}
 .scan-row .btn{flex:0 0 auto;margin:0;padding:10px 13px}
+.scan-btn{flex:0 0 auto;margin:0;padding:0;width:44px;height:44px;min-height:44px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;color:var(--gold);border:1px solid rgba(200,164,74,.42);background:linear-gradient(160deg,rgba(200,164,74,.14),rgba(200,164,74,.03));transition:.18s;cursor:pointer}
+.scan-btn:active{transform:scale(.95)}
+.scan-btn svg{display:block}
 .cod-row{display:flex;gap:8px;align-items:center}
 .cod-row input{flex:1;min-width:0}
 .cod-row .btn{flex:0 0 auto;margin:0;padding:10px 12px;white-space:nowrap}
@@ -441,7 +444,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <div class="pdv-cols">
   <div class="pdv-left">
     <div class="pdv-hoje" id="pdvStats"></div>
-    <div class="scan-row"><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="qPdv" placeholder="Lupa: achar produto ou bater o código…" autocomplete="off"></div><button class="btn ghost" data-act="pdvScan" type="button" title="Ler código de barras/QR com a câmera">📷</button></div>
+    <div class="scan-row"><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="qPdv" placeholder="Lupa: achar produto ou bater o código…" autocomplete="off"></div><button class="scan-btn" data-act="pdvScan" type="button" title="Ler código de barras/QR com a câmera" aria-label="Ler código de barras ou QR Code"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 8V5.2C3 4 4 3 5.2 3H8M16 3h2.8C20 3 21 4 21 5.2V8M21 16v2.8c0 1.2-1 2.2-2.2 2.2H16M8 21H5.2C4 21 3 20 3 18.8V16" stroke-width="2" stroke-linecap="round"/><rect x="6.6" y="6.6" width="3.7" height="3.7" rx=".7" stroke-width="1.6"/><rect x="13.7" y="6.6" width="3.7" height="3.7" rx=".7" stroke-width="1.6"/><rect x="6.6" y="13.7" width="3.7" height="3.7" rx=".7" stroke-width="1.6"/><g fill="currentColor" stroke="none"><rect x="13.9" y="13.9" width="1.7" height="1.7" rx=".35"/><rect x="16.5" y="13.9" width="1.7" height="1.7" rx=".35"/><rect x="15.2" y="15.7" width="1.7" height="1.7" rx=".35"/><rect x="13.9" y="17.4" width="1.7" height="1.7" rx=".35"/><rect x="16.5" y="17.4" width="1.7" height="1.7" rx=".35"/></g></svg></button></div>
     <div class="pgrid" id="pgrid"></div>
   </div>
   <div class="pdv-right">
@@ -482,7 +485,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 <section class="tab" id="estoque">
   <div class="t-title">ESTOQUE</div>
   <div class="stats" id="estStats"></div>
-  <div class="scan-row" style="margin-bottom:12px"><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="qProd" placeholder="Lupa: produto, fornecedor ou código…" autocomplete="off"></div><button class="btn ghost" data-act="estScan" type="button" title="Ler código de barras/QR com a câmera">📷</button></div>
+  <div class="scan-row" style="margin-bottom:12px"><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="qProd" placeholder="Lupa: produto, fornecedor ou código…" autocomplete="off"></div><button class="scan-btn" data-act="estScan" type="button" title="Ler código de barras/QR com a câmera" aria-label="Ler código de barras ou QR Code"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 8V5.2C3 4 4 3 5.2 3H8M16 3h2.8C20 3 21 4 21 5.2V8M21 16v2.8c0 1.2-1 2.2-2.2 2.2H16M8 21H5.2C4 21 3 20 3 18.8V16" stroke-width="2" stroke-linecap="round"/><rect x="6.6" y="6.6" width="3.7" height="3.7" rx=".7" stroke-width="1.6"/><rect x="13.7" y="6.6" width="3.7" height="3.7" rx=".7" stroke-width="1.6"/><rect x="6.6" y="13.7" width="3.7" height="3.7" rx=".7" stroke-width="1.6"/><g fill="currentColor" stroke="none"><rect x="13.9" y="13.9" width="1.7" height="1.7" rx=".35"/><rect x="16.5" y="13.9" width="1.7" height="1.7" rx=".35"/><rect x="15.2" y="15.7" width="1.7" height="1.7" rx=".35"/><rect x="13.9" y="17.4" width="1.7" height="1.7" rx=".35"/><rect x="16.5" y="17.4" width="1.7" height="1.7" rx=".35"/></g></svg></button></div>
   <button class="btn blk" data-act="prodNew">+ NOVO PRODUTO</button>
   <div id="prodList" style="margin-top:14px"></div>
 </section>
@@ -605,7 +608,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 <div class="mask" id="mProd"><div class="sheet">
   <div class="m-head"><h3 id="mProdT">Novo Produto</h3><button class="m-x" data-act="mclose">×</button></div>
   <label class="fld req"><span>NOME</span><input id="pNome" placeholder="Ex.: Capinha Moto G15"></label>
-  <label class="fld"><span>CÓDIGO DE BARRAS / QR (OPCIONAL)</span><div class="cod-row"><input id="pCod" placeholder="Bata o código com a câmera ou digite" autocomplete="off"><button class="btn ghost" data-act="prodScan" type="button">📷 LER</button></div></label>
+  <label class="fld"><span>CÓDIGO DE BARRAS / QR (OPCIONAL)</span><div class="cod-row"><input id="pCod" placeholder="Bata o código com a câmera ou digite" autocomplete="off"><button class="btn ghost" data-act="prodScan" type="button" title="Ler código com a câmera"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" aria-hidden="true" style="flex:0 0 auto"><path d="M3 8V5.2C3 4 4 3 5.2 3H8M16 3h2.8C20 3 21 4 21 5.2V8M21 16v2.8c0 1.2-1 2.2-2.2 2.2H16M8 21H5.2C4 21 3 20 3 18.8V16" stroke-width="2" stroke-linecap="round"/><rect x="6.6" y="6.6" width="3.7" height="3.7" rx=".7" stroke-width="1.6"/><rect x="13.7" y="6.6" width="3.7" height="3.7" rx=".7" stroke-width="1.6"/><rect x="6.6" y="13.7" width="3.7" height="3.7" rx=".7" stroke-width="1.6"/><g fill="currentColor" stroke="none"><rect x="13.9" y="13.9" width="1.7" height="1.7" rx=".35"/><rect x="16.5" y="13.9" width="1.7" height="1.7" rx=".35"/><rect x="15.2" y="15.7" width="1.7" height="1.7" rx=".35"/><rect x="13.9" y="17.4" width="1.7" height="1.7" rx=".35"/><rect x="16.5" y="17.4" width="1.7" height="1.7" rx=".35"/></g></svg>LER</button></div></label>
   <div class="f2">
     <label class="fld req"><span>CUSTO (R$)</span><input id="pCusto" inputmode="decimal" placeholder="0,00"></label>
     <label class="fld req"><span>PREÇO DE VENDA (R$)</span><input id="pPreco" inputmode="decimal" placeholder="0,00"></label>
