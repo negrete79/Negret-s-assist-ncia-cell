@@ -1,18 +1,21 @@
-/* NEGRET'S — Service Worker (offline-first) v2.3.0 — fluxo ORDEMFY: orçamento, fotos, peças, sangria, contas */
-const VERSION = 'negrets-v2.3.0';
-const APP_SHELL = [
+/* ================= NEGRET'S v3.0 — Service Worker (PWA offline) ================= */
+const VER = 'negrets-v3.0.0';
+const CORE = [
   './',
-  './index.html',
   './track.html',
   './manifest.json',
-  './icon.svg',
-  './icon-maskable.svg'
+  './icone.svg',
+  './icon-192.png',
+  './icon-512.png',
+  './maskable-192.png',
+  './maskable-512.png',
+  './offline.html'
 ];
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(VERSION)
-      .then(c => Promise.all(APP_SHELL.map(u => c.add(u).catch(() => {}))))
+    caches.open(VER)
+      .then(c => Promise.allSettled(CORE.map(u => c.add(new Request(u, { cache: 'reload' })))))
       .then(() => self.skipWaiting())
   );
 });
@@ -20,7 +23,7 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k))))
+      .then(ks => Promise.all(ks.filter(k => k !== VER).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -30,47 +33,38 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  /* APIs de nuvem do rastreio (link único busca status aqui): JAMAIS cachear */
-  if (/jsonblob\.com|ntfy\.sh|json\.extendsclass\.com|kvdb\.io/.test(url.hostname)) return;
-  /* navegação: rede primeiro, cache como reserva (funciona offline) */
-  if (req.mode === 'navigate') {
+  /* rastreio na nuvem (ntfy) — SEMPRE rede, nunca cachear */
+  if (url.hostname === 'ntfy.sh') return;
+
+  /* navegação (index/track): rede primeiro, cache se offline */
+  if (req.mode === 'navigate' || (req.destination === 'document')) {
     e.respondWith(
       fetch(req)
         .then(res => {
-          const copy = res.clone();
-          caches.open(VERSION).then(c => c.put(req, copy)).catch(() => {});
+          const cp = res.clone();
+          caches.open(VER).then(c => c.put(req, cp)).catch(() => {});
           return res;
         })
-        .catch(() => caches.match(req).then(r => r || caches.match('./index.html')))
+        .catch(() =>
+          caches.match(req).then(hit => hit || caches.match('./offline.html'))
+        )
     );
     return;
   }
 
-  /* CDNs (jsPDF, QRCode, fontes): atualiza por trás, serve na hora */
-  if (/cdnjs\.cloudflare\.com|fonts\.(googleapis|gstatic)\.com/.test(url.hostname)) {
-    e.respondWith(
-      caches.match(req).then(hit => {
-        const net = fetch(req)
-          .then(res => {
-            const copy = res.clone();
-            caches.open(VERSION).then(c => c.put(req, copy)).catch(() => {});
-            return res;
-          })
-          .catch(() => hit);
-        return hit || net;
-      })
-    );
-    return;
-  }
-
-  /* mesmo domínio: cache primeiro */
-  if (url.origin === location.origin) {
-    e.respondWith(
-      caches.match(req).then(hit => hit || fetch(req).then(res => {
-        const copy = res.clone();
-        caches.open(VERSION).then(c => c.put(req, copy)).catch(() => {});
-        return res;
-      }))
-    );
-  }
+  /* estáticos e CDNs (fontes, libs): stale-while-revalidate */
+  e.respondWith(
+    caches.match(req).then(hit => {
+      const net = fetch(req)
+        .then(res => {
+          if (res && (res.ok || res.type === 'opaque')) {
+            const cp = res.clone();
+            caches.open(VER).then(c => c.put(req, cp)).catch(() => {});
+          }
+          return res;
+        })
+        .catch(() => hit);
+      return hit || net;
+    })
+  );
 });

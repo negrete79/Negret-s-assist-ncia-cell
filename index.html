@@ -3,8 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#d4af37">
+<meta name="theme-color" content="#080808">
 <link rel="manifest" href="manifest.json">
+<meta name="description" content="NEGRET'S Assistência Técnica — gestão de OS, bancada, caixa, estoque e rastreio online para o cliente.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NEGRET'S">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>NEGRET'S — Assistência Técnica & Vendas</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Cpath d='M36 4 68 36 36 68 4 36Z' fill='%23080808' stroke='%23d4af37' stroke-width='3'/%3E%3Ctext x='36' y='48' font-family='Georgia,serif' font-size='32' font-weight='bold' fill='%23d4af37' text-anchor='middle'%3EN%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -94,6 +100,12 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 .st-reparo{color:#e8a44c;border-color:rgba(232,164,76,.4);background:rgba(232,164,76,.07)}
 .st-pronto{color:#8fd48f;border-color:rgba(143,212,143,.4);background:rgba(143,212,143,.07)}
 .st-entregue{color:#9b9b9b;border-color:#333;background:rgba(255,255,255,.03)}
+.st-atraso{color:#ff9c9c;border-color:rgba(224,112,112,.55);background:rgba(224,112,112,.1);animation:blinkA 1.8s infinite}
+@keyframes blinkA{0%,100%{opacity:1}50%{opacity:.5}}
+.bell{position:relative;margin-left:auto;background:none;border:1px solid #26241d;border-radius:12px;width:42px;height:42px;color:var(--gold);display:flex;align-items:center;justify-content:center;flex:0 0 auto;transition:.2s}
+.bell:active{transform:scale(.92);background:rgba(212,175,55,.08)}
+.bell .bdg{position:absolute;top:-6px;right:-6px;background:#e07070;color:#080808;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid #0a0a0a}
+.alert-note{background:linear-gradient(135deg,rgba(224,112,112,.12),rgba(212,175,55,.08));border:1px solid rgba(224,112,112,.45);border-radius:14px;padding:10px 12px;font-size:12.5px;color:#ffd9d9;display:flex;align-items:center;gap:9px;margin-bottom:10px;line-height:1.45}
 .os-cli{font-size:16px;font-weight:500;margin-top:7px}
 .os-dev{font-size:13px;color:var(--mut);margin-top:2px}
 .os-def{font-size:13.5px;color:#cfc9b8;margin-top:6px;line-height:1.4}
@@ -284,7 +296,8 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <div class="brand">
     <svg width="46" height="46" viewBox="0 0 72 72"><path d="M36 4 68 36 36 68 4 36Z" fill="#080808" stroke="#d4af37" stroke-width="3"/><path d="M36 16 56 36 36 56 16 36Z" fill="none" stroke="#d4af37" stroke-width="1.4"/><text x="36" y="48" font-family="Georgia,serif" font-size="30" font-weight="bold" fill="#d4af37" text-anchor="middle">N</text></svg>
     <div><span class="wm">NEGRET'S</span><small>ASSISTÊNCIA TÉCNICA &amp; VENDAS</small></div>
-    <button class="gear" data-act="cfg" title="Configurações"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></button>
+    <button class="bell" id="alertBell" data-act="goAlertas" title="Aparelhos prontos há 3+ dias aguardando retirada" style="display:none" aria-label="Alertas de retirada"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="bdg" id="bellN">0</span></button>
+    <button class="gear" data-act="cfg" title="Configurações" style="margin-left:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></button>
   </div>
 </div></header>
 
@@ -304,6 +317,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <div class="t-title">PAINEL DO DIA</div>
   <div class="stats" id="pnStats"></div>
   <div class="bars" id="pnBars"></div>
+  <div id="pnAlertas"></div>
   <div class="t-title">A RECEBER NAS OS</div>
   <div id="pnReceber"></div>
 </section>
@@ -342,7 +356,13 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
     <label class="fld req"><span>MARCA</span><select id="fMarca"><option>Motorola</option><option>Samsung</option><option>Xiaomi</option><option>Apple</option><option>LG</option><option>Asus</option><option>Nokia</option><option>Realme</option><option>Infinix</option><option>Outro</option></select></label>
     <label class="fld req"><span>MODELO</span><input id="fModelo" placeholder="Ex.: Moto G15"></label>
   </div>
-  <label class="fld"><span>IMEI (opcional)</span><input id="fImei" inputmode="numeric" placeholder="15 dígitos"></label>
+  <label class="fld"><span>IMEI (OPCIONAL — VALIDA E CONSULTA ONLINE)</span><input id="fImei" inputmode="numeric" maxlength="15" placeholder="15 dígitos — cole ou digite" autocomplete="off"></label>
+  <div id="imeiBox" style="display:none">
+    <div id="imeiValid" style="font-size:12.5px;margin:-4px 0 10px"></div>
+    <button class="btn ghost sm" data-act="imeiCheck" type="button">🔍 CONSULTAR SITUAÇÃO — ROUBADO / BLOQUEADO</button>
+    <div id="imeiRes" style="margin-top:10px"></div>
+  </div>
+  <label class="fld"><span>SITUAÇÃO DO IMEI — REGISTRE AQUI O RESULTADO DA CONSULTA</span><div class="chips" id="fImeiSit"></div></label>
   <label class="fld req"><span>DEFEITO RELATADO</span><textarea id="fDefeito" placeholder="Ex.: não liga, tela trincada…"></textarea></label>
   <label class="fld"><span>CHECKLIST DE ENTRADA</span><div class="chips" id="fCheck"></div></label>
   <label class="fld"><span>OBSERVAÇÕES DO APARELHO</span><textarea id="fCond" placeholder="Riscos, estado geral…"></textarea></label>
@@ -507,6 +527,10 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
     <label class="fld req"><span>NOME DO RECEBEDOR</span><input id="cPixNome" placeholder="Como aparece no banco"></label>
     <button class="btn ghost blk" data-act="pixTest" type="button">TESTAR PIX (QR de R$ 1,00)</button>
   </div>
+  <div class="cfg-sec"><div class="cs-t">CONSULTA DE IMEI — API (OPCIONAL)</div>
+    <label class="fld"><span>URL DA API — COLOQUE {IMEI} ONDE VAI O NÚMERO</span><input id="cImeiApi" placeholder="https://api.exemplo.com/check?imei={IMEI}&amp;key=SUA_CHAVE"></label>
+    <p class="m-note">Tem assinatura de consulta de IMEI (imeicheck.net, imei.info API…)? Cole a URL aqui — o botão CONSULTAR passa a puxar a resposta na hora, direto no app. Sem API, o botão abre os verificadores públicos gratuitos (blacklist e dados do aparelho) e você registra o resultado nos chips de situação da OS.</p>
+  </div>
   <div class="cfg-sec"><div class="cs-t">SEGURANÇA</div>
     <label class="fld"><span>NOVA SENHA DE ADMINISTRADOR</span><input id="cNovaSenha" type="password" autocomplete="new-password" placeholder="Deixe vazio para manter"></label>
     <p class="m-note">A senha é pedida para abrir Configurações e para excluir registros. Padrão inicial: <b>1234</b>.</p>
@@ -518,6 +542,10 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
       <button class="btn ghost blk" data-act="bkImp" type="button" style="padding:11px">IMPORTAR</button>
     </div>
     <input type="file" id="bkFile" accept="application/json,.json" style="display:none">
+  </div>
+  <div class="cfg-sec"><div class="cs-t">DADOS DE DEMONSTRAÇÃO</div>
+    <p class="m-note" style="margin-top:-4px">Adiciona ordens, vendas e estoque de exemplo para testar o app — inclui um aparelho PRONTO há 5 dias para você ver o alerta de retirada funcionando. Não apaga seus dados atuais.</p>
+    <button class="btn ghost blk" data-act="demoLoad" type="button">CARREGAR DEMONSTRAÇÃO</button>
   </div>
   <button class="btn blk" data-act="cfgSave">SALVAR CONFIGURAÇÕES</button>
 </div></div>
@@ -550,6 +578,13 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <label class="fld"><span>CHECKLIST DE ENTRADA</span><div class="chips" id="eCheck"></div></label>
   <label class="fld"><span>OBSERVAÇÕES DO APARELHO</span><textarea id="eCond"></textarea></label>
   <label class="fld"><span>ACESSÓRIOS</span><input id="eAcess"></label>
+  <label class="fld"><span>IMEI</span><input id="eImei" inputmode="numeric" maxlength="15" placeholder="15 dígitos" autocomplete="off"></label>
+  <div id="eImeiBox" style="display:none">
+    <div id="eImeiValid" style="font-size:12.5px;margin:-4px 0 10px"></div>
+    <button class="btn ghost sm" data-act="eImeiCheck" type="button">🔍 CONSULTAR SITUAÇÃO — ROUBADO / BLOQUEADO</button>
+    <div id="eImeiRes" style="margin-top:10px"></div>
+  </div>
+  <label class="fld"><span>SITUAÇÃO DO IMEI</span><div class="chips" id="eImeiSit"></div></label>
   <label class="fld"><span>SERVIÇOS</span>
     <div class="chips" id="eSvcChips"></div>
     <div class="chip-add"><input id="eSvcManual" placeholder="Outro serviço…" autocomplete="off"><button class="btn ghost sm" data-act="svcAddEdit" type="button">+ ADD</button></div>
@@ -580,6 +615,20 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <label style="display:flex;align-items:center;gap:10px;margin:14px 0 4px;font-size:13.5px;color:#cfc9b8"><input type="checkbox" id="avLink" checked style="accent-color:#d4af37;width:17px;height:17px"> Incluir link de acompanhamento na mensagem</label>
   <button class="btn blk wide-mt" data-act="avOk" id="avOk">AVANÇAR E AVISAR NO WHATSAPP</button>
   <button class="btn ghost blk wide-mt" data-act="avSilent">AVANÇAR SEM AVISAR</button>
+</div></div>
+
+<div class="mask" id="mStatus"><div class="sheet">
+  <div class="m-head"><h3>Status da OS — Avançar ou Voltar</h3><button class="m-x" data-act="mclose">×</button></div>
+  <p class="m-note" id="stTitle"></p>
+  <div class="lb-sec" style="margin-bottom:8px">TOQUE NO NOVO STATUS — PODE AVANÇAR OU VOLTAR QUANDO QUISER</div>
+  <div class="chips" id="stChips"></div>
+  <div style="background:#0d0d0d;border:1px solid #242218;border-radius:12px;padding:12px;font-size:13.5px;color:#cfc9b8;line-height:1.55;margin-top:12px" id="stMsg"></div>
+  <label style="display:flex;align-items:center;gap:10px;margin:14px 0 4px;font-size:13.5px;color:#cfc9b8"><input type="checkbox" id="stLink" checked style="accent-color:#d4af37;width:17px;height:17px"> Incluir link de acompanhamento na mensagem</label>
+  <button class="btn blk wide-mt" data-act="stApply">MUDAR E AVISAR NO WHATSAPP</button>
+  <button class="btn ghost blk wide-mt" data-act="stApplySilent">MUDAR SEM AVISAR</button>
+  <div class="cs-t" style="margin-top:16px">HISTÓRICO DE STATUS</div>
+  <div id="stHist"></div>
+  <button class="btn danger blk wide-mt" data-act="stUndo" id="stUndoBtn" style="display:none">↩ DESFAZER ÚLTIMA MUDANÇA (SE AVANÇOU POR ENGANO)</button>
 </div></div>
 
 <div class="mask" id="mReceber"><div class="sheet">
@@ -708,6 +757,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <div class="m-head"><h3>Venda Concluída ✔</h3><button class="m-x" data-act="mclose">×</button></div>
   <div style="text-align:center;padding:8px 0 4px"><div style="font-family:var(--serif);font-size:30px;color:var(--gold)" id="doneVal">R$ 0,00</div><div style="font-size:12px;color:var(--mut);margin-top:4px" id="doneSub"></div></div>
   <button class="btn blk wide-mt" data-act="vendaCp">🧾 CUPOM (IMPRIMIR / PDF / WHATSAPP)</button>
+  <button class="btn ghost blk wide-mt" data-act="doneEntregar" id="doneEntregar" style="display:none">📱 APARELHO ENTREGUE — MARCAR COMO ENTREGUE</button>
   <button class="btn ghost blk wide-mt" data-act="novaVenda">NOVA VENDA</button>
 </div></div>
 
@@ -744,16 +794,20 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 <button id="installBtn" data-act="install"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4 19h16"/></svg>Instalar app</button>
 <div id="toasts"></div>
 <script>
-/* ================= NÚCLEO — NEGRET'S v2.3 ================= */
+/* ================= NÚCLEO — NEGRET'S v3.0 (IMEI online + status livre + botão receber + alerta 3 dias + PWA) ================= */
 const KEY='negrets_v6', OLD='negrets_v5';
 const FLOW=['analise','orcamento','reparo','pronto','entregue'];
 const ST={analise:'EM ANÁLISE',orcamento:'ORÇAMENTO',reparo:'EM REPARO',pronto:'PRONTO',entregue:'ENTREGUE'};
+const ALERT_DIAS=3; /* alerta quando o aparelho fica pronto e ninguém retira por 3+ dias */
+function readyDesde(o){if(o.status!=='pronto')return 0;if(+o.readyAt)return +o.readyAt;const h=(o.hist||[]).filter(x=>x.s==='pronto');return h.length?h[h.length-1].t:0;}
+function diasPronto(o){const t=readyDesde(o);return t?(Date.now()-t)/864e5:0;}
+function alertasProntos(){return DB.ordens.filter(o=>o.status==='pronto'&&diasPronto(o)>=ALERT_DIAS).sort((a,b)=>diasPronto(b)-diasPronto(a));}
 const FOTOS_TAGS=['entrada','reparo','saida'];
 const FOTOS_LB={entrada:'ENTRADA',reparo:'REPARO',saida:'SAÍDA'};
 const CHECKLIST=['Liga','Não liga','Tela íntegra','Tela trincada','Câmera OK','Botões OK','Carga OK','Molhado'];
 const PAYS=['Dinheiro','Pix','Cartão Crédito','Cartão Débito'];
 let DB={ordens:[],vendas:[],produtos:[],clientes:[],fornecedores:[],despesas:[],caixa:[],contas:[],seq:{},config:null};
-let CART=[],SPLITS={pdv:[{f:'Dinheiro',v:''}],rec:[{f:'Pix',v:''}]},tempSvcs=[],tempCheck=[],tempAss=null,tempFotos=[],editingProd=null,editingCli=null,editingEq=null,editingForn=null,editingSvc=null,admCtx=null,curVenda=null,pendingPix=null,avOs=null,curLink='',recOs=null,signOsId=null,osFlt='todas',osViewM='lista',entProd=null,editTarget=null,prodTarget=null,cupomTarget=null,fotoOsId=null,fotoTag='entrada',cxTipo='sangria';
+let CART=[],SPLITS={pdv:[{f:'Dinheiro',v:''}],rec:[{f:'Pix',v:''}]},tempSvcs=[],tempCheck=[],tempAss=null,tempFotos=[],editingProd=null,editingCli=null,editingEq=null,editingForn=null,editingSvc=null,admCtx=null,curVenda=null,pendingPix=null,avOs=null,curLink='',recOs=null,signOsId=null,osFlt='todas',osViewM='lista',entProd=null,editTarget=null,prodTarget=null,cupomTarget=null,fotoOsId=null,fotoTag='entrada',cxTipo='sangria',tempSit='nao-verificado',eSit='nao-verificado',stOs=null,stSel='';
 
 /* ---------- utils ---------- */
 const $=id=>document.getElementById(id);
@@ -789,6 +843,7 @@ function load(){
   c.loja=c.loja||{nome:"NEGRET'S ASSISTÊNCIA",endereco:'',zap:'',cidade:'',rodape:'Obrigado pela confiança!'};
   c.pix=c.pix||{chave:'',recebedor:''};
   c.admSenha=c.admSenha||'1234';
+  c.imei=(c.imei&&typeof c.imei==='object')?c.imei:{apiUrl:''};
   c.servicos=(Array.isArray(c.servicos)&&c.servicos.length)?c.servicos:['Troca de Tela','Troca de Bateria','Reparo de Placa','Reparo Geral','Limpeza','Venda de Acessório'];
   c.equipe=Array.isArray(c.equipe)?c.equipe:[];
   DB.config=c;
@@ -799,6 +854,10 @@ function load(){
     o.pags=Array.isArray(o.pags)?o.pags:[];
     o.hist=Array.isArray(o.hist)&&o.hist.length?o.hist:[{s:o.status,t:o.atualizado}];
     o.check=Array.isArray(o.check)?o.check:[];o.gar=+o.gar||90;
+    o.readyAt=+o.readyAt||0;
+    if(o.status==='pronto'&&!o.readyAt){const hp=(o.hist||[]).filter(x=>x.s==='pronto');o.readyAt=hp.length?hp[hp.length-1].t:(o.atualizado||Date.now());}
+    if(o.status!=='pronto')o.readyAt=0;
+    o.imeiSit=SITUACOES.some(p=>p[0]===o.imeiSit)?o.imeiSit:'nao-verificado';o.imeiSitT=+o.imeiSitT||0;
     o.fotos=Array.isArray(o.fotos)?o.fotos:[];o.pecas=Array.isArray(o.pecas)?o.pecas:[];
   });
   DB.caixa.forEach(c=>{c.v=+c.v||0;c.ts=c.ts||Date.now();c.tipo=c.tipo==='reforco'?'reforco':'sangria';c.obs=c.obs||'';});
@@ -947,7 +1006,7 @@ function osSave(){
   const c=upsertCliente(cli,zap);
   const o={
     id:uid(),num:numOS(),data:Date.now(),atualizado:Date.now(),status:'analise',
-    cliId:c?c.id:'',cliente:cli,whats:zap,marca,modelo,imei:$('fImei').value.trim(),
+    cliId:c?c.id:'',cliente:cli,whats:zap,marca,modelo,imei:$('fImei').value.trim(),imeiSit:tempSit,imeiSitT:tempSit!=='nao-verificado'?Date.now():0,
     defeito:def,cond:$('fCond').value.trim(),acess:$('fAcess').value.trim(),
     check:tempCheck.slice(),gar:90,
     servicos:tempSvcs.slice(),resp:$('fResp').value,
@@ -955,8 +1014,8 @@ function osSave(){
     pags:[],hist:[{s:'analise',t:Date.now()}],ass:tempAss||'',fotos:tempFotos.slice(),pecas:[]
   };
   DB.ordens.unshift(o);save();
-  trackEnsure(o);trackPush(o);
-  $('fCli').value='';$('fZap').value='';$('fModelo').value='';$('fImei').value='';$('fDefeito').value='';$('fCond').value='';$('fAcess').value='';$('fValor').value='';$('fEntrada').value='';
+  trackEnsure(o);trackPush(o);sseSync();
+  $('fCli').value='';$('fZap').value='';$('fModelo').value='';$('fImei').value='';$('fDefeito').value='';$('fCond').value='';$('fAcess').value='';$('fValor').value='';$('fEntrada').value='';$('imeiRes').innerHTML='';tempSit='nao-verificado';imeiUI();renderSitChips();
   tempSvcs=[];tempCheck=[];tempAss=null;tempFotos=[];renderNewFotos();$('signPrev').style.display='none';
   toast('OS '+o.num+' gerada com sucesso!');
   proxNumTxt();renderCheckChips();renderSvcChips();renderCliDl();goTab('os');
@@ -967,6 +1026,7 @@ function osEdit(id){
   const o=DB.ordens.find(x=>x.id===id);if(!o)return;
   editTarget=o;tempSvcs=(o.servicos||[]).slice();tempCheck=(o.check||[]).slice();
   $('eDefeito').value=o.defeito||'';$('eCond').value=o.cond||'';$('eAcess').value=o.acess||'';
+  $('eImei').value=o.imei||'';eSit=o.imeiSit||'nao-verificado';$('eImeiRes').innerHTML='';eImeiUI();renderSitChips();
   $('eValor').value=campoDec(o.valor);$('eEntrada').value=campoDec(o.entrada);$('eForma').value=o.forma||'A combinar';
   renderRespSel();$('eResp').value=o.resp||'';
   renderEPecaSel();renderEPecas();
@@ -977,6 +1037,8 @@ function osEditSave(){
   editTarget.defeito=$('eDefeito').value.trim();
   editTarget.cond=$('eCond').value.trim();
   editTarget.acess=$('eAcess').value.trim();
+  editTarget.imei=$('eImei').value.replace(/\D/g,'');
+  if(eSit!==(editTarget.imeiSit||'nao-verificado')){editTarget.imeiSit=eSit;editTarget.imeiSitT=Date.now();}
   editTarget.servicos=tempSvcs.slice();
   editTarget.check=tempCheck.slice();
   editTarget.resp=$('eResp').value;
@@ -1089,22 +1151,78 @@ function pecaDelOs(i){
   ps.splice(i,1);save();renderEPecaSel();renderEPecas();toast('Peça removida — estoque devolvido.');
 }
 
+/* ---------- IMEI: validação do dígito verificador + consulta online (roubado/bloqueado) ---------- */
+const SITUACOES=[['nao-verificado','NÃO VERIFICADO'],['limpo','LIMPO / NORMAL'],['roubado','ROUBADO'],['bloqueado','BLOQ. OPERADORA'],['icloud','BLOQ. FABRICANTE (iCloud/FRP)'],['irregular','IMEI IRREGULAR']];
+const SIT_LB={};SITUACOES.forEach(p=>{SIT_LB[p[0]]=p[1];});
+const SIT_COR={limpo:'#8fd48f',roubado:'#e07070',bloqueado:'#e8a44c',icloud:'#e8a44c',irregular:'#e07070'};
+const SIT_BAD=['roubado','bloqueado','icloud','irregular'];
+function imeiLuhn(v){const d=String(v||'').replace(/\D/g,'');if(d.length!==15)return false;let s=0;for(let i=0;i<15;i++){let n=+d[i];if(i%2===1){n*=2;if(n>9)n-=9;}s+=n;}return s%10===0;}
+function imeiValidMsg(d){
+  if(!d)return '';
+  if(d.length<15)return '<span style="color:var(--mut)">Falta'+(15-d.length>1?'m':'')+' '+(15-d.length)+' dígito(s)…</span>';
+  return imeiLuhn(d)?'<span style="color:#8fd48f">✓ IMEI válido — dígito verificador confere.</span>':'<span style="color:#e07070">✗ Dígito verificador NÃO confere — releia o número (no aparelho: *#06#). Aparelho paralelo/clonado pode falhar aqui — consulte antes de registrar.</span>';
+}
+function imeiUI(){const d=String($('fImei').value).replace(/\D/g,'').slice(0,15);if($('fImei').value!==d)$('fImei').value=d;$('imeiBox').style.display=d?'':'none';$('imeiValid').innerHTML=imeiValidMsg(d);}
+function eImeiUI(){const d=String($('eImei').value).replace(/\D/g,'').slice(0,15);if($('eImei').value!==d)$('eImei').value=d;$('eImeiBox').style.display=d?'':'none';$('eImeiValid').innerHTML=imeiValidMsg(d);}
+function renderSitChips(){
+  const f=$('fImeiSit');
+  if(f)f.innerHTML=SITUACOES.map(p=>`<button type="button" class="chip ${tempSit===p[0]?'on':''}" data-act="sitTgl" data-s="${p[0]}">${p[1]}</button>`).join('');
+  const e=$('eImeiSit');
+  if(e)e.innerHTML=SITUACOES.map(p=>`<button type="button" class="chip ${eSit===p[0]?'on':''}" data-act="esitTgl" data-s="${p[0]}">${p[1]}</button>`).join('');
+}
+function imeiConsultar(resId,imei){
+  const box=$(resId);if(!box)return;
+  imei=String(imei||'').replace(/\D/g,'');
+  if(imei.length!==15){toast('Preencha os 15 dígitos do IMEI primeiro.');return;}
+  const api=((DB.config.imei||{}).apiUrl||'').trim();
+  if(api){
+    box.innerHTML='<div class="pay-code">Consultando a API configurada…</div>';
+    const url=api.indexOf('{IMEI}')>=0?api.replace('{IMEI}',encodeURIComponent(imei)):api+encodeURIComponent(imei);
+    fetch(url).then(r=>r.text()).then(txt=>{
+      let pretty=txt;try{pretty=JSON.stringify(JSON.parse(txt),null,1);}catch(_){}
+      const hit=/(blacklist|black-list|stolen|lost|roubad|bloquead|blocked|irregular|fraud)/i.test(txt);
+      box.innerHTML=`<div class="pay-code" style="max-height:210px">${esc(pretty.slice(0,1600))}</div><p class="m-note" style="margin-top:8px">${hit?'<b style="color:#e07070">⚠ A resposta menciona bloqueio/roubo — leia com atenção e registre no chip de situação.</b>':'Leia a resposta e registre o resultado no chip de situação da OS.'}</p>`;
+    }).catch(()=>{box.innerHTML='<div class="pay-code">A API falhou ou está sem internet — use as consultas públicas abaixo.</div>';});
+    return;
+  }
+  window.open('https://www.imeipro.info/blacklist.html?imei='+imei,'_blank');
+  box.innerHTML=`
+    <p class="m-note" style="margin-bottom:9px">Abri o verificador público de <b>blacklist</b> em nova aba. Consulte também os dados do aparelho e a situação na operadora; depois registre o resultado no chip de situação.</p>
+    <div class="f2">
+      <button class="btn sm blk" data-act="imeiOpen" data-u="blacklist" data-imei="${esc(imei)}" type="button">🚫 BLACKLIST</button>
+      <button class="btn ghost sm blk" data-act="imeiOpen" data-u="info" data-imei="${esc(imei)}" type="button">ℹ MARCA / MODELO</button>
+    </div>
+    <div class="pay-code" style="margin-top:9px">${esc(imei)}</div>
+    <button class="btn ghost sm blk" data-act="imeiCopy" data-imei="${esc(imei)}" type="button" style="margin-top:8px">COPIAR IMEI</button>`;
+}
+function sitTag(o){
+  if(!o.imeiSit||o.imeiSit==='nao-verificado')return '';
+  if(o.imeiSit==='limpo')return '<span class="resp-tag" style="color:#8fd48f;border-color:rgba(143,212,143,.4)">IMEI LIMPO</span>';
+  const c=SIT_COR[o.imeiSit]||'#e07070';
+  return `<span class="resp-tag" style="color:${c};border-color:${c}">⚠ ${esc(SIT_LB[o.imeiSit]||o.imeiSit)}</span>`;
+}
+
 /* ---------- render de cards ---------- */
 function osCard(o){
   const falta=faltaDe(o),pago=pagoTotal(o);
+  const dp=diasPronto(o),atraso=o.status==='pronto'&&dp>=ALERT_DIAS;
   const btns=o.status!=='entregue'?`<button class="btn sm" data-act="avancar" data-id="${o.id}">${o.status==='orcamento'?'ORÇAMENTO APROVADO ✓':'AVANÇAR'}</button>`:'';
+  const btnEnt=o.status==='pronto'?`<button class="btn ghost sm" data-act="osEntregar" data-id="${o.id}" title="Cliente levou o aparelho — fecha a OS">ENTREGAR ✔</button>`:'';
+  const sitBad=o.imeiSit&&SIT_BAD.indexOf(o.imeiSit)>=0;
   const rec=falta>0?`<button class="btn sm" data-act="osReceber" data-id="${o.id}">RECEBER ${money(falta)}</button>`:'';
   const eg=(o.hist||[]).find(h=>h.s==='entregue');
   const garAte=eg?eg.t+(+o.gar||90)*864e5:0;
-  return `<div class="os-card">
-    <div class="os-top"><span class="os-num">${esc(o.num)}</span><span class="badge st-${o.status}">${ST[o.status]}</span><span class="os-data">${fmtD(o.data)}</span></div>
+  return `<div class="os-card"${atraso?' style="border-color:rgba(224,112,112,.4)"':''}>
+    <div class="os-top"><span class="os-num">${esc(o.num)}</span><span class="badge st-${o.status}">${ST[o.status]}</span>${atraso?`<span class="badge st-atraso">⚠ ${Math.floor(dp)}d AGUARDANDO</span>`:''}<span class="os-data">${fmtD(o.data)}</span></div>
     <div class="os-cli">${esc(o.cliente)}</div>
     <div class="os-dev">${esc(o.marca)} ${esc(o.modelo)}${o.imei?' — IMEI '+esc(o.imei):''}</div>
     <div class="os-def">${esc(o.defeito)}</div>
+    ${sitBad?`<div style="margin-top:7px;font-size:12.5px;color:#e07070;line-height:1.4">⚠ IMEI ${esc(SIT_LB[o.imeiSit]||'')} — confirme a titularidade do aparelho e a política da loja antes de executar o reparo.</div>`:''}
     ${(o.servicos&&o.servicos.length)?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${o.servicos.map(s=>`<span class="tag">${esc(s)}</span>`).join('')}</div>`:''}
     ${(o.pecas&&o.pecas.length)?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${o.pecas.map(p=>`<span class="tag">🔧 ${p.qtd}x ${esc(p.nome)}</span>`).join('')}</div>`:''}
     <div class="os-val"><span>Total <b>${money(o.valor)}</b></span><span>Pago <b>${money(pago)}</b></span><span>Falta <b class="${falta>0?'gold':''}">${money(falta)}</b></span></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+      ${sitTag(o)}
       ${o.resp?`<span class="resp-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>${esc(o.resp)}</span>`:''}
       ${o.forma&&o.forma!=='A combinar'?`<span class="resp-tag">${esc(o.forma)}</span>`:''}
       ${o.ass?`<span class="resp-tag">✍ assinado</span>`:''}
@@ -1112,7 +1230,8 @@ function osCard(o){
       ${o.status==='entregue'&&garAte?`<span class="resp-tag">garantia até ${fmtD(garAte)}</span>`:''}
     </div>
     <div class="acts">
-      ${btns}${rec}
+      ${btns}${rec}${btnEnt}
+      <button class="btn ghost sm" data-act="osStatus" data-id="${o.id}" title="Mudar status — avançar ou voltar">⇄ STATUS</button>
       <button class="btn ghost sm" data-act="osFotos" data-id="${o.id}">📷 FOTOS</button>
       <button class="btn ghost sm" data-act="osEdit" data-id="${o.id}">EDITAR</button>
       <button class="btn ghost sm" data-act="osSign" data-id="${o.id}" title="Assinatura">✍</button>
@@ -1133,7 +1252,7 @@ function renderOsLista(){
   const q=norm($('qOrdens').value).trim();
   let list=DB.ordens.slice().sort((a,b)=>b.atualizado-a.atualizado);
   if(osFlt!=='todas')list=list.filter(o=>o.status===osFlt);
-  if(q)list=list.filter(o=>[o.cliente,o.whats,o.marca,o.modelo,o.num,o.imei,o.defeito].some(v=>norm(v).includes(q)));
+  if(q)list=list.filter(o=>[o.cliente,o.whats,o.marca,o.modelo,o.num,o.imei,o.imeiSit,o.defeito].some(v=>norm(v).includes(q)));
   $('osList').innerHTML=list.length?list.map(osCard).join(''):'<div class="empty">'+(q?'Nada encontrado para essa busca.':'Nenhuma ordem ainda — crie a primeira no botão dourado ＋.')+'</div>';
 }
 function renderBancada(){
@@ -1148,6 +1267,7 @@ function renderBancada(){
 
 /* ---------- avançar status + aviso WhatsApp + link ---------- */
 const AVISO={
+  analise:o=>`Olá ${o.cliente}! Seu ${o.marca} ${o.modelo} (*${o.num}*) está em ANÁLISE TÉCNICA — em breve enviaremos novidades. — NEGRET'S Assistência`,
   orcamento:o=>{const f=faltaDe(o);return `Olá ${o.cliente}! A avaliação do seu ${o.marca} ${o.modelo} (*${o.num}*) ficou pronta. *ORÇAMENTO: ${money(o.valor)}*${(o.servicos&&o.servicos.length)?' — '+o.servicos.join(', '):''}.${f>0?' Entrada registrada: '+money(pagoTotal(o))+'.':''} Responda APROVADO aqui para começarmos o reparo. — NEGRET'S Assistência`;},
   reparo:o=>`Olá ${o.cliente}! Orçamento aprovado — seu ${o.marca} ${o.modelo} (*${o.num}*) entrou em REPARO. Avisaremos assim que ficar pronto. — NEGRET'S Assistência`,
   pronto:o=>{const f=faltaDe(o);return `Olá ${o.cliente}! Boa notícia: seu ${o.marca} ${o.modelo} (*${o.num}*) está PRONTO! Já pode retirar na loja.${f>0?' Saldo em aberto: '+money(f)+'.':''} — NEGRET'S Assistência`;},
@@ -1191,8 +1311,85 @@ async function flushTrack(boot){
 function trackLink(o){
   trackEnsure(o);
   const base=location.href.split('#')[0].replace(/index\.html.*$/,'');
-  /* ?v=2 quebra o cache heurístico do navegador do cliente, garantindo o track.html novo */
-  return base+'track.html?v=2#'+b64e({v:2,n:o.num,tn:o.trackTopic||''});
+  /* ?v=3 quebra o cache heurístico do navegador do cliente, garantindo o track.html novo */
+  return base+'track.html?v=3#'+b64e({v:3,n:o.num,tn:o.trackTopic||''});
+}
+/* --- comandos do cliente: o track.html publica no canal privado da OS e o app processa (confirmação de recebimento) --- */
+let sseSrc=null,sseSig='';
+function procCmd(txt){
+  try{
+    const c=JSON.parse(txt);if(!c||c.cmd!=='confirm'||!c.tn)return;
+    const o=DB.ordens.find(x=>x.trackTopic===c.tn&&x.status==='pronto');if(!o)return;
+    o.status='entregue';o.atualizado=Date.now();o.readyAt=0;
+    o.hist=(o.hist||[]).concat([{s:'entregue',t:Date.now(),nota:'Cliente confirmou recebimento pelo link de rastreio'}]);
+    save();trackPush(o);sseSync();
+    renderOs();renderPainel();renderClientes();
+    toast('✔ Cliente confirmou recebimento da '+o.num+'!');
+  }catch(e){}
+}
+function sseSync(){
+  const tops=DB.ordens.filter(o=>o.status!=='entregue'&&o.trackTopic).map(o=>o.trackTopic);
+  const sig=tops.slice().sort().join(',');
+  if(sig===sseSig)return;sseSig=sig;
+  if(sseSrc){try{sseSrc.close();}catch(e){}sseSrc=null;}
+  if(!tops.length||!navigator.onLine)return;
+  try{
+    sseSrc=new EventSource('https://ntfy.sh/'+encodeURIComponent(tops.join(','))+'/sse');
+    sseSrc.onmessage=ev=>{try{const m=JSON.parse(ev.data);if(m&&m.event==='message'&&m.message)procCmd(m.message);}catch(e){}};
+  }catch(e){}
+}
+async function pollCmds(){
+  if(!navigator.onLine)return;
+  const tops=DB.ordens.filter(o=>o.trackTopic).map(o=>o.trackTopic);
+  if(!tops.length)return;
+  try{
+    const r=await fetch('https://ntfy.sh/'+encodeURIComponent(tops.join(','))+'/json?poll=1&since=12h');
+    const txt=await r.text();
+    txt.trim().split(/\n+/).forEach(l=>{try{const m=JSON.parse(l);if(m&&m.message)procCmd(m.message);}catch(e){}});
+  }catch(e){}
+}
+/* --- lembrete de retirada (alerta 3+ dias) --- */
+function waLembrete(id){
+  const o=DB.ordens.find(x=>x.id===id);if(!o)return;
+  const dpi=Math.floor(diasPronto(o));const f=faltaDe(o);
+  let msg=`Olá ${o.cliente}! Lembrete carinhoso: seu ${o.marca} ${o.modelo} (*${o.num}*) está PRONTO há ${dpi} dia${dpi===1?'':'s'} na NEGRET'S aguardando sua retirada.${f>0?' Saldo em aberto: '+money(f)+'.':''} Estamos de portas abertas! — NEGRET'S Assistência`;
+  msg+='\n\nAcompanhe: '+trackLink(o);
+  window.open('https://wa.me/'+limpaTel(o.whats)+'?text='+encodeURIComponent(msg),'_blank');
+}
+/* --- entregar aparelho: fecha a OS com um toque (também chega pelo botão de receber) --- */
+function entregarOs(id){
+  const o=DB.ordens.find(x=>x.id===id);if(!o)return;
+  if(o.status==='entregue'){toast('Esta OS já foi entregue.');return;}
+  o.status='entregue';o.atualizado=Date.now();o.readyAt=0;
+  o.hist=(o.hist||[]).concat([{s:'entregue',t:Date.now()}]);
+  trackEnsure(o);save();trackPush(o);sseSync();
+  renderOs();renderPainel();renderClientes();
+  toast(o.num+' entregue! ✔');
+}
+/* --- dados de demonstração (para testar tudo: alerta 3 dias, receber, bancada…) --- */
+function demoCarregar(){
+  if(!confirm('Carregar dados de demonstração? Isso ADICIONA exemplos aos seus dados atuais (não apaga nada).'))return;
+  const agora=Date.now(),d=n=>agora-n*864e5;
+  if(!DB.config.loja.zap)DB.config.loja.zap='31982517147';
+  if(!DB.clientes.some(c=>c.nome==='Marcos Silva'))DB.clientes.push({id:uid(),nome:'Marcos Silva',whats:'31988880001',obs:''},{id:uid(),nome:'Juliana Costa',whats:'31988880002',obs:''},{id:uid(),nome:'Pedro Souza',whats:'31988880003',obs:''});
+  if(!DB.produtos.length)DB.produtos.push({id:uid(),nome:'Película Vidro Universal',custo:8,preco:25,est:12,min:4,forn:''},{id:uid(),nome:'Capinha Motorola G15',custo:12,preco:39.9,est:2,min:5,forn:''},{id:uid(),nome:'Carregador Turbo 30W',custo:35,preco:79.9,est:6,min:3,forn:''});
+  const y=new Date().getFullYear();
+  let seq=DB.seq[y]||0;
+  const mk=(dd,st,cli,whats,marc,mod,imei2,defe,svs,val,ent,pagsDias,sit)=>{seq++;const hist=[{s:'analise',t:dd}];
+    if(st!=='analise')hist.push({s:st,t:dd+6*36e5});
+    const o={id:uid(),num:'NEG-'+y+'-'+String(seq).padStart(3,'0'),data:dd,atualizado:dd+6*36e5,status:st,cliId:'',cliente:cli,whats,marca:marc,modelo:mod,imei:imei2,imeiSit:sit||'nao-verificado',imeiSitT:sit&&sit!=='nao-verificado'?dd:0,defeito:defe,cond:'Leves riscos de uso.',acess:'Capa e carregador',check:['Liga','Tela trincada'],gar:90,servicos:svs,resp:'',valor:val,entrada:ent,forma:'Pix',pags:(pagsDias||[]).map((p,i)=>({id:uid(),v:p,t:dd+i*864e5,forma:'Pix'})),hist,ass:'',fotos:[],pecas:[],readyAt:st==='pronto'?dd+6*36e5:0};
+    DB.ordens.unshift(o);return o;};
+  mk(d(6),'pronto','Marcos Silva','31988880001','Motorola','Moto G15 5G','354040083398542','Tela trincada — não toca',['Troca de Tela'],320,100,[220],'limpo');
+  mk(d(2),'pronto','Juliana Costa','31988880002','Samsung','Galaxy A15','356789104567891','Bateria viciando',['Troca de Bateria'],150,0,[],'nao-verificado');
+  mk(d(1),'reparo','Pedro Souza','31988880003','Xiaomi','Redmi Note 13','','Não carrega — conector frouxo',['Reparo de Conector','Limpeza'],95,0,[],'nao-verificado');
+  mk(d(0),'analise','Marcos Silva','31988880001','Apple','iPhone 12','013994005123456','Câmera traseira embaçada',['Diagnóstico'],0,0,[],'nao-verificado');
+  const eg=mk(d(9),'entregue','Juliana Costa','31988880002','Motorola','Moto E13','','Vai desligando sozinho',['Reparo de Placa'],180,180,[],'limpo');
+  if(!DB.vendas.some(v=>v.origemOS===eg.num))DB.vendas.unshift({id:uid(),data:d(9),itens:[{nome:'OS '+eg.num+' — Reparo de Placa',refOS:eg.id,qtd:1,preco:180,custo:0}],sub:180,desc:0,descPct:0,total:180,pags:[{f:'Pix',v:180}],forma:'Pix',origemOS:eg.num,cliente:'Juliana Costa',vendedor:''});
+  DB.seq[y]=seq;DB.config.demo=true;save();
+  sseSync();proxNumTxt();
+  renderPainel();renderOs();renderVendas();renderProdutos();renderClientes();renderFin();renderCad();
+  toast('Demonstração carregada! Veja o alerta no PAINEL.');
+  goTab('painel');
 }
 function avancar(id){
   const o=DB.ordens.find(x=>x.id===id);if(!o)return;
@@ -1227,6 +1424,7 @@ function avReprovou(){
 function confirmarAvanco(notify){
   if(!avOs)return;
   const {o,nx}=avOs;o.status=nx;o.atualizado=Date.now();
+  o.readyAt=nx==='pronto'?Date.now():0;
   o.hist=(o.hist||[]).concat([{s:nx,t:Date.now()}]);
   trackEnsure(o);save();
   if(notify){
@@ -1236,8 +1434,68 @@ function confirmarAvanco(notify){
     window.open('https://wa.me/'+zap+'?text='+encodeURIComponent(msg),'_blank');
   }
   trackPush(o).then(ok=>{if(ok)toast('Nuvem do rastreio atualizada.');else toast('Sem internet — o rastreio sincroniza quando a conexão voltar.');});
-  mclose('mAvanco');avOs=null;
+  mclose('mAvanco');avOs=null;sseSync();
   renderOs();renderPainel();renderClientes();toast('Status avançado para '+ST[nx]+'.');
+}
+
+/* ---------- STATUS LIVRE — o técnico muda quando quiser: avança, volta ou desfaz engano ---------- */
+function statusMudar(id){
+  const o=DB.ordens.find(x=>x.id===id);if(!o)return;
+  stOs=o;stSel=o.status;
+  $('stTitle').textContent=o.num+' — '+o.cliente+' · '+(o.marca+' '+o.modelo).trim();
+  renderStChips();renderStHist();mopen('mStatus');
+}
+function renderStChips(){
+  if(!stOs)return;
+  $('stChips').innerHTML=FLOW.map(k=>`<button type="button" class="chip ${stSel===k?'on':''}" data-act="stSel" data-s="${k}">${ST[k]}${k===stOs.status?' · ATUAL':''}</button>`).join('');
+  const falta=faltaDe(stOs);
+  if(stSel===stOs.status){$('stMsg').innerHTML='<span style="color:var(--mut)">Status atual — escolha outro na lista acima (pode voltar!).</span>';}
+  else if(stSel==='entregue'&&falta>0){
+    $('stMsg').innerHTML=`<div style="background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.4);border-radius:12px;padding:12px;font-size:13.5px;color:#e6dfc8;display:flex;align-items:center;gap:10px"><span style="flex:1">Falta <b style="color:var(--gold)">${money(falta)}</b> desta OS — receba antes ou depois de entregar.</span><button class="btn sm" data-act="stReceber" type="button">RECEBER AGORA</button></div>`;
+  }
+  else{
+    const msg=AVISO[stSel]?AVISO[stSel](stOs):('Atualização de status: '+ST[stSel]);
+    $('stMsg').innerHTML='<b>Mensagem pronta para o WhatsApp:</b><br>'+esc(msg);
+  }
+}
+function renderStHist(){
+  if(!stOs)return;
+  const h=stOs.hist||[];
+  $('stHist').innerHTML=h.length?h.map((x,i)=>`<div class="fin-row" style="padding:8px 12px"><div class="fi"><b>${ST[x.s]||esc(x.s)}</b><span>${fmtDT(x.t)}${i===h.length-1?' · status atual':''}${x.nota?'<br><span style="color:var(--gold)">'+esc(x.nota)+'</span>':''}</span></div></div>`).join(''):'<div class="empty" style="padding:12px">Sem histórico.</div>';
+  $('stUndoBtn').style.display=h.length>1?'':'none';
+}
+function aplicarStatus(notify){
+  if(!stOs)return;
+  const o=stOs;
+  if(stSel===o.status){toast('Escolha um status diferente do atual.');return;}
+  const de=o.status;
+  o.status=stSel;o.atualizado=Date.now();
+  o.readyAt=stSel==='pronto'?Date.now():0;
+  o.hist=(o.hist||[]).concat([{s:stSel,t:Date.now()}]);
+  trackEnsure(o);save();
+  if(notify){
+    let msg=AVISO[stSel]?AVISO[stSel](o):`Olá ${o.cliente}! Atualização do seu ${o.marca} ${o.modelo} (*${o.num}*): status ${ST[stSel]}. — NEGRET'S Assistência`;
+    if($('stLink').checked)msg+='\n\nAcompanhe seu serviço em tempo real: '+trackLink(o);
+    window.open('https://wa.me/'+limpaTel(o.whats)+'?text='+encodeURIComponent(msg),'_blank');
+  }
+  trackPush(o);
+  mclose('mStatus');stOs=null;
+  renderOs();renderPainel();renderClientes();
+  toast('Status: '+ST[de]+' → '+ST[stSel]+'.');
+}
+function stUndo(){
+  if(!stOs)return;
+  const o=stOs,h=o.hist||[];
+  if(h.length<2){toast('Nada para desfazer — a OS está no status original.');return;}
+  const de=h[h.length-1].s;
+  h.pop();
+  o.status=h.length?h[h.length-1].s:'analise';
+  o.atualizado=Date.now();
+  save();trackPush(o);
+  stSel=o.status;
+  renderStChips();renderStHist();
+  renderOs();renderPainel();
+  toast('Desfeito! Voltou de '+ST[de]+' para '+ST[o.status]+'.');
 }
 function osWa(id){
   const o=DB.ordens.find(x=>x.id===id);if(!o)return;
@@ -1293,8 +1551,12 @@ function recOk(){
   if(!rows.length){toast('Informe o valor das formas de pagamento.');return;}
   const pix=rows.filter(r=>r.f==='Pix').reduce((a,r)=>a+r.v,0);
   const done=()=>{
-    const v=registrarPagamentoOs(recOs.id,rows);
+    const ro=recOs;
+    const v=registrarPagamentoOs(ro.id,rows);
     mclose('mReceber');
+    const deB=$('doneEntregar');
+    if(deB)deB.style.display=(ro&&ro.status==='pronto')?'':'none';
+    window._doneOsId=ro?ro.id:'';
     if(v){recOs=null;curVenda=v;$('doneVal').textContent=money(v.total);$('doneSub').textContent=fmtDT(v.data)+' — '+v.forma;mopen('mDone');}
   };
   if(pix>0){
@@ -1367,6 +1629,11 @@ function renderPainel(){
   const mx=Math.max(...dias.map(d=>d.v),1);
   $('pnBars').innerHTML=dias.map((d,i)=>`<div class="bw ${i===6?'hi':''}"><div class="b" style="height:${Math.max(3,d.v/mx*100)}%"></div><span class="bl">${d.l}</span></div>`).join('');
   const rec=DB.ordens.filter(o=>faltaDe(o)>0).sort((a,b)=>b.atualizado-a.atualizado).slice(0,5);
+  /* --- ALERTA: aparelhos prontos há 3+ dias aguardando retirada --- */
+  const al=alertasProntos();
+  const bell=$('alertBell');
+  if(bell){bell.style.display=al.length?'':'none';$('bellN').textContent=al.length;}
+  $('pnAlertas').innerHTML=al.length?`<div class="t-title" style="color:#ff9c9c;margin-top:14px">⚠ ALERTA — PRONTO HÁ ${ALERT_DIAS}+ DIAS, SEM RETIRADA</div><div class="alert-note"><span style="flex:1"><b>${al.length} aparelho${al.length===1?'':'s'}</b> concluído${al.length===1?'':'s'} há 3 dias ou mais e ainda na loja. Lembre o cliente ou organize a retirada para liberar a bancada.</span></div>`+al.map(o=>{const dpi=Math.floor(diasPronto(o));const f=faltaDe(o);return `<div class="fin-row" style="border-color:rgba(224,112,112,.35)"><div class="fi"><b>${esc(o.num)} — ${esc(o.cliente)}</b><span>${esc(o.marca)} ${esc(o.modelo)} · PRONTO HÁ ${dpi} DIA${dpi===1?'':'S'}${f>0?' · falta '+money(f):' · quitada'}</span></div><div style="display:flex;gap:6px;flex:0 0 auto"><button class="btn ghost sm" data-act="waLembrete" data-id="${o.id}" title="Lembrete no WhatsApp do cliente">LEMBRETE</button><button class="btn sm" data-act="osEntregar" data-id="${o.id}">ENTREGAR</button></div></div>`;}).join(''):'';
   $('pnReceber').innerHTML=rec.length?rec.map(o=>`
     <div class="fin-row"><div class="fi"><b>${esc(o.num)} — ${esc(o.cliente)}</b><span>${esc(o.marca)} ${esc(o.modelo)} · ${ST[o.status]}</span></div>
     <span class="fv">${money(faltaDe(o))}</span>
@@ -1784,7 +2051,7 @@ function pdfJs(o){
     doc.text(String(val==null||val===''?'—':val).substring(0,36),xx,yy+5.2);
   };
   campo('CLIENTE',o.cliente,y,26);campo('WHATSAPP',limpaTel(o.whats),y,118);y+=rowH;
-  campo('APARELHO',o.marca+' '+o.modelo,y,26);campo('IMEI',o.imei||'—',y,118);y+=rowH;
+  campo('APARELHO',o.marca+' '+o.modelo,y,26);campo('IMEI',(o.imei||'—')+((o.imeiSit&&o.imeiSit!=='nao-verificado')?' · '+SIT_LB[o.imeiSit]:''),y,118);y+=rowH;
   campo('DEFEITO RELATADO',o.defeito,y,26);y+=rowH;
   campo('ESTADO NA ENTRADA',(o.check&&o.check.length)?o.check.join(' · '):'—',y,26);y+=rowH;
   campo('OBSERVACOES',o.cond||'—',y,26);y+=rowH;
@@ -2060,6 +2327,7 @@ function cfgFill(){
   $('cNome').value=c.loja.nome||'';$('cEnd').value=c.loja.endereco||'';$('cZap').value=c.loja.zap||'';
   $('cCid').value=c.loja.cidade||'';$('cRod').value=c.loja.rodape||'';
   $('cPixChave').value=c.pix.chave||'';$('cPixNome').value=c.pix.recebedor||'';
+  $('cImeiApi').value=(c.imei&&c.imei.apiUrl)||'';
   $('cNovaSenha').value='';
 }
 function cfgSave(){
@@ -2071,6 +2339,7 @@ function cfgSave(){
   c.loja.rodape=$('cRod').value.trim();
   c.pix.chave=$('cPixChave').value.trim();
   c.pix.recebedor=$('cPixNome').value.trim();
+  c.imei={apiUrl:$('cImeiApi').value.trim()};
   const ns=$('cNovaSenha').value.trim();
   if(ns){c.admSenha=ns;toast('Senha de administrador alterada!');}
   save();toast('Configurações salvas.');
@@ -2181,6 +2450,23 @@ document.addEventListener('click',e=>{
     case 'osView':{osViewM=t.dataset.v;document.querySelectorAll('#segOs button').forEach(b=>b.classList.toggle('on',b.dataset.v===osViewM));renderOs();break;}
     case 'fltSet':{osFlt=t.dataset.v;renderOsLista();break;}
     case 'avancar':avancar(id);break;
+    case 'osStatus':statusMudar(id);break;
+    case 'stSel':{stSel=t.dataset.s;renderStChips();break;}
+    case 'stApply':aplicarStatus(true);break;
+    case 'stApplySilent':aplicarStatus(false);break;
+    case 'stUndo':stUndo();break;
+    case 'stReceber':{if(stOs){const oid=stOs.id;mclose('mStatus');osReceber(oid);}break;}
+    case 'osEntregar':{const oo=DB.ordens.find(x=>x.id===id);if(oo&&confirm('Confirmar que o cliente levou o aparelho da '+oo.num+'?'))entregarOs(id);break;}
+    case 'doneEntregar':{if(window._doneOsId)entregarOs(window._doneOsId);mclose('mDone');break;}
+    case 'waLembrete':waLembrete(id);break;
+    case 'goAlertas':{document.querySelectorAll('.mask.on').forEach(m=>m.classList.remove('on'));goTab('painel');setTimeout(()=>{const el=$('pnAlertas');if(el&&el.innerHTML)el.scrollIntoView({behavior:'smooth',block:'center'});else toast('Nenhum alerta de retirada no momento. ✔');},150);break;}
+    case 'demoLoad':demoCarregar();break;
+    case 'imeiCheck':imeiConsultar('imeiRes',$('fImei').value);break;
+    case 'eImeiCheck':imeiConsultar('eImeiRes',$('eImei').value);break;
+    case 'imeiOpen':{const u=t.dataset.u,im=t.dataset.imei||'';window.open(u==='blacklist'?'https://www.imeipro.info/blacklist.html?imei='+im:'https://www.imei.info/?imei='+im,'_blank');break;}
+    case 'imeiCopy':copy(t.dataset.imei||'','IMEI copiado!');break;
+    case 'sitTgl':tempSit=t.dataset.s;renderSitChips();break;
+    case 'esitTgl':eSit=t.dataset.s;renderSitChips();break;
     case 'avOk':confirmarAvanco(true);break;
     case 'avSilent':confirmarAvanco(false);break;
     case 'avReprovou':avReprovou();break;
@@ -2239,6 +2525,8 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&document.activeElement===$('svcManual')){e.preventDefault();const v=$('svcManual').value.trim();if(v){if(!tempSvcs.includes(v))tempSvcs.push(v);$('svcManual').value='';renderSvcChips();}}
   if(e.key==='Escape')document.querySelectorAll('.mask.on').forEach(m=>m.classList.remove('on'));
 });
+$('fImei').addEventListener('input',imeiUI);
+$('eImei').addEventListener('input',eImeiUI);
 $('qOrdens').addEventListener('input',renderOsLista);
 $('qPdv').addEventListener('input',renderVendas);
 $('qHist').addEventListener('input',renderVendas);
@@ -2271,12 +2559,18 @@ if(window.matchMedia('(display-mode: standalone)').matches)localStorage.setItem(
 
 /* ---------- init ---------- */
 load();
-proxNumTxt();renderCheckChips();renderSvcChips();renderRespSel();renderVendSel();renderCliDl();renderNewFotos();
+proxNumTxt();renderCheckChips();renderSvcChips();renderRespSel();renderVendSel();renderCliDl();renderNewFotos();renderSitChips();
 renderPainel();renderOs();renderVendas();renderSplits();renderProdutos();renderClientes();renderFin();renderCad();
 signInit();
 setTimeout(()=>flushTrack(true),2500);
 setInterval(()=>flushTrack(false),10*60*1000);
 window.addEventListener('online',()=>flushTrack(false));
+setTimeout(()=>{pollCmds();sseSync();},3000);
+setInterval(()=>{pollCmds();},30*60*1000);
+window.addEventListener('online',()=>sseSync());
+if(alertasProntos().length)setTimeout(()=>toast('⚠ '+alertasProntos().length+' aparelho(s) pronto(s) há 3+ dias aguardando retirada — veja o PAINEL.'),900);
+/* atalhos do PWA (manifest shortcuts): abre direto na aba pedida */
+(function(){const HB=(location.hash||'').replace('#','');if(['painel','os','nova','caixa','estoque'].indexOf(HB)>=0)goTab(HB);})();
 window.addEventListener('load',()=>{
   if('serviceWorker' in navigator){try{navigator.serviceWorker.register('./sw.js');}catch(e){}}
 });

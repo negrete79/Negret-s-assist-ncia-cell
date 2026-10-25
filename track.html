@@ -4,241 +4,261 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#080808">
-<title>NEGRET'S — Acompanhe seu serviço</title>
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NEGRET'S Track">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Cpath d='M36 4 68 36 36 68 4 36Z' fill='%23080808' stroke='%23d4af37' stroke-width='3'/%3E%3Ctext x='36' y='48' font-family='Georgia,serif' font-size='32' font-weight='bold' fill='%23d4af37' text-anchor='middle'%3EN%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Acompanhamento — NEGRET'S</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#080808;--card:#121212;--line:#1e1e1e;--gold:#d4af37;--ink:#ece7dc;--mut:#8f897a;--serif:'Cinzel',Georgia,serif;--sans:'Jost','Segoe UI',sans-serif}
+:root{
+  --bg:#080808; --card:#121212; --line:#1e1e1e;
+  --gold:#d4af37; --gold-d:#a8842c;
+  --ink:#ece7dc; --mut:#8f897a;
+  --serif:'Cinzel',Georgia,serif;
+  --sans:'Jost','Avenir Next','Segoe UI',sans-serif;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--sans);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:34px 18px 50px;-webkit-font-smoothing:antialiased}
-.aura{position:fixed;inset:0;pointer-events:none;background:radial-gradient(600px 300px at 50% -80px,rgba(212,175,55,.12),transparent 70%)}
-.logo{filter:drop-shadow(0 0 18px rgba(212,175,55,.25))}
-.brand{text-align:center;margin:14px 0 4px}
-.wm{font-family:var(--serif);font-weight:700;font-size:24px;letter-spacing:.3em;margin-right:-.3em;color:var(--gold);display:block}
-.brand small{display:block;font-size:9.5px;letter-spacing:.36em;color:var(--mut);margin-top:5px}
-.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:18px;width:100%;max-width:430px;padding:22px 20px;margin-top:20px}
-.osnum{font-family:var(--serif);color:var(--gold);font-size:19px;letter-spacing:.06em;text-align:center}
-.upd{text-align:center;color:var(--mut);font-size:11.5px;margin-top:4px;letter-spacing:.06em;min-height:18px}
-.minibody{text-align:center;color:var(--mut);font-size:13.5px;line-height:1.6;margin-top:18px}
-.tl{margin:26px 0 8px}
-.tl-step{display:flex;gap:14px;position:relative;padding-bottom:26px}
-.tl-step:last-child{padding-bottom:0}
-.tl-step::before{content:'';position:absolute;left:13px;top:30px;bottom:0;width:2px;background:#242218}
-.tl-step:last-child::before{display:none}
-.tl-step.done::before{background:var(--gold)}
-.dot{flex:0 0 auto;width:28px;height:28px;border-radius:50%;border:2px solid #2c2a20;background:#0d0d0d;display:flex;align-items:center;justify-content:center;margin-top:1px}
-.done .dot{border-color:var(--gold);background:rgba(212,175,55,.16)}
-.cur .dot{border-color:var(--gold);background:var(--gold);box-shadow:0 0 0 5px rgba(212,175,55,.15),0 0 18px rgba(212,175,55,.5)}
-.dot svg{width:13px;height:13px;stroke:#0d0d0d;opacity:0}
-.done .dot svg{opacity:1;stroke:var(--gold)}
-.cur .dot svg{opacity:1;stroke:#080808}
-.tl-lb{font-size:15.5px;font-weight:500;color:#5f5a4e;padding-top:3px}
-.done .tl-lb,.cur .tl-lb{color:var(--ink)}
-.cur .tl-lb{color:var(--gold);font-weight:600}
-.tl-when{font-size:11px;color:var(--mut);margin-top:1px;display:none}
-.cur .tl-when,.done .tl-when{display:block}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
-.gi{background:#0d0d0d;border:1px solid #1e1c15;border-radius:12px;padding:10px 12px}
-.gi.full{grid-column:1/-1}
-.gi span{display:block;font-size:9px;letter-spacing:.24em;color:var(--mut);margin-bottom:4px}
-.gi b{font-weight:500;font-size:14px;color:#eae4d2;word-break:break-word}
-.pay{display:flex;gap:10px;margin-top:14px}
-.pay div{flex:1;background:#0d0d0d;border:1px solid #1e1c15;border-radius:12px;padding:10px 8px;text-align:center}
-.pay span{display:block;font-size:9px;letter-spacing:.2em;color:var(--mut)}
-.pay b{display:block;font-family:var(--serif);font-size:15px;color:var(--gold);margin-top:3px}
-.foot{margin-top:22px;text-align:center;color:var(--mut);font-size:11.5px;letter-spacing:.08em;max-width:430px}
-.badge{display:block;text-align:center;margin:14px auto 0;width:fit-content;font-size:10px;letter-spacing:.2em;border-radius:99px;padding:6px 16px;border:1px solid rgba(212,175,55,.45);color:var(--gold);background:rgba(212,175,55,.07)}
-.btnrow{display:flex;gap:10px;margin-top:16px}
-.btnrow a,.btnrow button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(180deg,#e2c14f,#c19a2e);color:#141005;font-weight:600;border:0;border-radius:12px;padding:13px 10px;font-size:13px;letter-spacing:.05em;cursor:pointer;text-decoration:none}
-.btnrow button:disabled{opacity:.65;cursor:wait}
-.btnrow .g{background:none;border:1px solid #2c2a20;color:var(--gold)}
-.err{max-width:430px;width:100%;text-align:center;margin-top:60px}
-.err h1{font-family:var(--serif);font-size:20px;color:var(--gold);letter-spacing:.06em}
-.err p{color:var(--mut);margin-top:10px;font-size:14px}
-.live{display:inline-flex;align-items:center;gap:6px}
-.live i{width:7px;height:7px;border-radius:50%;background:#7fe8a4;display:inline-block;box-shadow:0 0 8px #7fe8a4;animation:pul 1.6s infinite}
-.live.warn i{background:#e8b34a;box-shadow:0 0 8px #e8b34a;animation:none}
-.live.off i{background:#777;box-shadow:none;animation:none}
-.live.wait i{background:var(--gold);box-shadow:0 0 8px var(--gold);animation:pul 1.2s infinite}
-@keyframes pul{0%,100%{opacity:1}50%{opacity:.35}}
-.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(20,16,5,.35);border-top-color:#141005;border-radius:50%;animation:sp .7s linear infinite}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.45 var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh;padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
+::selection{background:rgba(212,175,55,.35)}
+::-webkit-scrollbar{width:7px;height:7px}
+::-webkit-scrollbar-thumb{background:#26241d;border-radius:99px}
+button,input{font-family:var(--sans);font-size:15px;color:var(--ink)}
+button{cursor:pointer}
+.wrap{max-width:560px;margin:0 auto;padding:0 14px}
+.top{background:#0a0a0a;border-bottom:1px solid #17150e;position:sticky;top:0;z-index:40}
+.top::after{content:'';display:block;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,55,.5),transparent)}
+.brand{display:flex;align-items:center;gap:12px;padding:13px 0 11px}
+.brand svg{flex:0 0 auto;filter:drop-shadow(0 0 10px rgba(212,175,55,.18))}
+.wm{display:block;font-family:var(--serif);font-weight:700;font-size:19px;letter-spacing:.26em;margin-right:-.26em;color:var(--gold);line-height:1.1}
+.brand small{display:block;font-size:8.5px;letter-spacing:.3em;color:var(--mut);margin-top:3px;font-weight:400}
+.main{padding:18px 0 8px}
+.t-title{font-family:var(--serif);font-size:13px;letter-spacing:.22em;color:var(--gold);margin:20px 0 10px;display:flex;align-items:center;gap:10px}
+.t-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(212,175,55,.4),transparent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.os-num{font-family:var(--serif);font-size:19px;font-weight:700;letter-spacing:.06em;color:var(--ink)}
+.badge{display:inline-block;font-size:9.5px;letter-spacing:.14em;padding:4px 9px;border-radius:99px;border:1px solid;font-weight:500}
+.st-analise{color:#d9c26a;border-color:rgba(217,194,106,.4);background:rgba(217,194,106,.07)}
+.st-orcamento{color:#7fb8e8;border-color:rgba(127,184,232,.45);background:rgba(127,184,232,.08)}
+.st-reparo{color:#e8a44c;border-color:rgba(232,164,76,.4);background:rgba(232,164,76,.07)}
+.st-pronto{color:#8fd48f;border-color:rgba(143,212,143,.4);background:rgba(143,212,143,.07)}
+.st-entregue{color:#9b9b9b;border-color:#333;background:rgba(255,255,255,.03)}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.kv{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px dashed #1c1c1c;font-size:14px}
+.kv:last-child{border-bottom:0}
+.kv span{color:var(--mut)}
+.kv b{text-align:right;font-weight:500;color:#e6dfc8;max-width:60%}
+.money{font-size:15px}
+.tl{position:relative;margin:6px 0 0;padding-left:24px}
+.tl-item{position:relative;padding:0 0 18px}
+.tl-item::before{content:'';position:absolute;left:-19px;top:4px;width:11px;height:11px;border-radius:99px;background:#26241d;border:2px solid #3a352a}
+.tl-item.done::before{background:var(--gold);border-color:var(--gold);box-shadow:0 0 10px rgba(212,175,55,.45)}
+.tl-item::after{content:'';position:absolute;left:-13px;top:18px;bottom:-2px;width:1px;background:#26241d}
+.tl-item:last-child::after{display:none}
+.tl-item b{display:block;font-size:13.5px;font-weight:500;letter-spacing:.06em}
+.tl-item span{font-size:11.5px;color:var(--mut)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(160deg,#e7c94f,#b8912a);color:#080808;border:0;border-radius:13px;padding:13px 16px;font-weight:600;font-size:13.5px;letter-spacing:.1em;width:100%;transition:.18s;-webkit-tap-highlight-color:transparent}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:none;border:1px solid #2e2a1f;color:var(--gold)}
+.mt{margin-top:12px}
+.empty{text-align:center;color:var(--mut);font-size:13.5px;padding:26px 10px;line-height:1.6}
+.spin{width:34px;height:34px;border:3px solid #26241d;border-top-color:var(--gold);border-radius:99px;animation:sp 1s linear infinite;margin:38px auto}
 @keyframes sp{to{transform:rotate(360deg)}}
+.off{background:rgba(224,112,112,.1);border:1px solid rgba(224,112,112,.4);color:#ffb3b3;border-radius:12px;padding:9px 12px;font-size:12.5px;margin-bottom:12px;display:none}
+.ok-box{background:rgba(143,212,143,.08);border:1px solid rgba(143,212,143,.45);color:#c9eec9;border-radius:14px;padding:14px;font-size:13.5px;line-height:1.55;text-align:center}
+.pronto-box{background:rgba(143,212,143,.07);border:1px solid rgba(143,212,143,.4);border-radius:16px;padding:16px;text-align:center}
+.pronto-box h3{font-family:var(--serif);color:#8fd48f;font-size:17px;letter-spacing:.12em;margin-bottom:6px}
+.pronto-box p{font-size:13px;color:var(--mut);margin-bottom:14px;line-height:1.5}
+.foot{text-align:center;color:#5d594e;font-size:11px;letter-spacing:.14em;margin-top:26px}
+.toasts{position:fixed;left:0;right:0;bottom:calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:8px;z-index:300;pointer-events:none}
+.toast{background:#1a1812;border:1px solid rgba(212,175,55,.5);color:#efe8cf;padding:10px 18px;border-radius:99px;font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.6);max-width:88%;text-align:center}
 </style>
 </head>
 <body>
-<div class="aura"></div>
-<svg class="logo" width="72" height="72" viewBox="0 0 72 72"><path d="M36 4 68 36 36 68 4 36Z" fill="#080808" stroke="#d4af37" stroke-width="3"/><path d="M36 14 58 36 36 58 14 36Z" fill="none" stroke="#d4af37" stroke-width="1.4" opacity=".55"/><text x="36" y="49" font-family="Georgia,serif" font-size="30" font-weight="bold" fill="#d4af37" text-anchor="middle">N</text></svg>
-<div class="brand"><span class="wm">NEGRET'S</span><small>ASSISTÊNCIA TÉCNICA &amp; VENDAS</small></div>
-<div id="app"></div>
-<div class="foot">Este link é privado — não compartilhe com outras pessoas.<br>Guarde esta mensagem: é por aqui que a loja informa o andamento.</div>
+
+<header class="top"><div class="wrap">
+  <div class="brand">
+    <svg width="42" height="42" viewBox="0 0 72 72"><path d="M36 4 68 36 36 68 4 36Z" fill="#080808" stroke="#d4af37" stroke-width="3"/><path d="M36 16 56 36 36 56 16 36Z" fill="none" stroke="#d4af37" stroke-width="1.4"/><text x="36" y="48" font-family="Georgia,serif" font-size="30" font-weight="bold" fill="#d4af37" text-anchor="middle">N</text></svg>
+    <div><span class="wm" id="hLoja">NEGRET'S</span><small>ACOMPANHE SEU SERVIÇO AO VIVO</small></div>
+  </div>
+</div></header>
+
+<main class="wrap main">
+  <div class="off" id="offBox">Você está sem internet — mostrando as informações salvas. Atualize quando a conexão voltar.</div>
+
+  <div id="loading"><div class="spin"></div><div class="empty">Buscando o status do seu aparelho na nuvem…</div></div>
+
+  <div id="erro" style="display:none">
+    <div class="empty">Não encontramos dados desta OS na nuvem.<br><span style="font-size:12.5px">A loja atualiza o rastreio ao usar o app — peça o reenvio do link no WhatsApp se precisar.</span></div>
+    <button class="btn ghost mt" id="btRetry">TENTAR DE NOVO</button>
+  </div>
+
+  <div id="conteudo" style="display:none">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <span class="os-num" id="osNum">—</span>
+        <span class="badge st-analise" id="osSt">—</span>
+      </div>
+      <div style="font-size:13px;color:var(--mut);margin-top:6px" id="osUpd"></div>
+    </div>
+
+    <div id="prontoBox" style="display:none">
+      <div class="pronto-box mt">
+        <h3>✔ SEU APARELHO ESTÁ PRONTO!</h3>
+        <p>Já pode vir retirar na loja. Se preferir, confirme aqui que recebeu o aparelho — a loja fica sabendo na hora.</p>
+        <button class="btn" id="btConfirm">CONFIRMAR QUE RECEBI MEU APARELHO</button>
+      </div>
+    </div>
+
+    <div class="t-title">LINHA DO TEMPO</div>
+    <div class="card"><div class="tl" id="osTl"></div></div>
+
+    <div class="t-title">SEU APARELHO</div>
+    <div class="card" id="osDev"></div>
+
+    <div id="boxValores" style="display:none">
+      <div class="t-title">VALORES</div>
+      <div class="card" id="osVal"></div>
+    </div>
+
+    <button class="btn ghost mt" id="btUpd">ATUALIZAR STATUS</button>
+    <button class="btn mt" id="btZap" style="display:none">FAZER UMA PERGUNTA NO WHATSAPP</button>
+    <div class="ok-box mt" id="okBox" style="display:none">Recebimento confirmado! A NEGRET'S já foi avisada. Obrigado pela confiança!</div>
+  </div>
+
+  <div class="foot">NEGRET'S · ASSISTÊNCIA TÉCNICA & VENDAS</div>
+</main>
+
+<div class="toasts" id="toasts"></div>
+
 <script>
-/* NEGRET'S — rastreio do cliente
-   Dois formatos de link:
-   • PERMANENTE (v2): hash = {v:2, n, tn} — a string NUNCA muda; o status é buscado na nuvem ao abrir e renovado a cada 20s.
-   • ANTIGO (legado): hash = snapshot completo — renderiza igual e mostra aviso de modelo antigo. */
-const LABELS={analise:'EM ANÁLISE',orcamento:'ORÇAMENTO ENVIADO',reparo:'EM REPARO',pronto:'PRONTO — RETIRE NA LOJA',entregue:'ENTREGUE'};
-const ORDER=['analise','orcamento','reparo','pronto','entregue'];
-const DESCR={analise:'Recebemos seu aparelho e nossa equipe está avaliando.',orcamento:'Avaliação pronta — aguardando sua aprovação do orçamento.',reparo:'Orçamento aprovado — o reparo está em andamento.',pronto:'Seu aparelho está pronto para retirada.',entregue:'Serviço concluído e aparelho entregue. Obrigado!'};
+/* ================= TRACK — NEGRET'S v3.0 (rastreio ao vivo + confirmar recebimento) ================= */
+const ST={analise:'EM ANÁLISE',orcamento:'ORÇAMENTO',reparo:'EM REPARO',pronto:'PRONTO',entregue:'ENTREGUE'};
 const NTFY='https://ntfy.sh/';
-function b64d(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return JSON.parse(decodeURIComponent(escape(atob(s))));}
-const esc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
-function money(v){return 'R$ '+(+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function fmt(t){try{return new Date(t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch(e){return '—';}}
-function fmtH(t){try{return new Date(t).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch(e){return '';}}
-function limpa(s){return String(s||'').replace(/\D/g,'');}
 const $=id=>document.getElementById(id);
-let DATA=null,BUSY=false;
-function hasCloud(d){return !!(d&&d.tn);}
-function render(d){
-  DATA=d;
-  const cur=ORDER.includes(d.st)?d.st:'analise';
-  const curIdx=ORDER.indexOf(cur);
-  const pago=d.pg!=null?+d.pg:(+d.e||0);
-  const falta=Math.max(0,(+d.v||0)-pago);
-  let tl='';
-  ORDER.forEach((k,i)=>{
-    const done=i<curIdx,isCur=i===curIdx;
-    let when='';
-    if(Array.isArray(d.h)){
-      const hit=d.h.find(x=>x[0]===k);
-      if(hit)when=fmt(hit[1]);
-    }
-    tl+=`<div class="tl-step ${done?'done':''} ${isCur?'cur':''}">
-      <div class="dot">${CHECK}</div>
-      <div style="flex:1"><div class="tl-lb">${LABELS[k]}</div>
-      <div class="tl-when">${when||(DESCR[k])}</div></div></div>`;
-  });
-  const zap=limpa(d.z);
-  $('app').innerHTML=`
-  <div class="card">
-    <div class="osnum">${esc(d.n||'')}</div>
-    <div class="upd" id="updLine">Atualizado: ${fmt(d.up)}</div>
-    <div class="tl">${tl}</div>
-    <div class="grid">
-      ${d.c?`<div class="gi"><span>CLIENTE</span><b>${esc(d.c)}</b></div>`:''}
-      ${d.m?`<div class="gi"><span>APARELHO</span><b>${esc(d.m)}</b></div>`:''}
-      ${d.sv?`<div class="gi full"><span>SERVIÇO(S)</span><b>${esc(d.sv)}</b></div>`:''}
-      ${d.d?`<div class="gi full"><span>DEFEITO RELATADO</span><b>${esc(d.d)}</b></div>`:''}
-      <div class="gi"><span>GARANTIA</span><b>${(+d.g||90)} dias</b></div>
-      ${d.l?`<div class="gi"><span>LOJA</span><b>${esc(d.l)}</b></div>`:''}
-    </div>
-    ${(+d.v||0)>0?`<div class="pay">
-      <div><span>TOTAL</span><b>${money(d.v)}</b></div>
-      <div><span>PAGO</span><b>${money(pago)}</b></div>
-      <div><span>FALTA</span><b>${money(falta)}</b></div>
-    </div>${falta<=0?'<span class="badge" style="border-color:rgba(127,232,164,.5);color:#7fe8a4;background:rgba(127,232,164,.06)">PAGAMENTO QUITADO — OBRIGADO!</span>':''}`:''}
-    <div class="btnrow">
-      ${hasCloud(DATA)?`<button id="btnUpd">ATUALIZAR</button>`:''}
-      ${zap?`<a class="g" href="https://wa.me/${esc(zap)}" target="_blank">FALAR COM A LOJA</a>`:''}
-    </div>
-    ${hasCloud(DATA)?'':'<div style="text-align:center;color:var(--mut);font-size:11px;margin-top:12px">Este é um link do modelo antigo — para acompanhar ao vivo, peça um link novo à loja.</div>'}
-  </div>`;
-  const b=$('btnUpd');
-  if(b)b.addEventListener('click',()=>refresh());
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=v=>'R$ '+(+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtD=t=>new Date(t).toLocaleDateString('pt-BR');
+const fmtDT=t=>new Date(t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+function b64d(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return JSON.parse(decodeURIComponent(escape(atob(s))));}
+function toast(m){const d=document.createElement('div');d.className='toast';d.textContent=m;$('toasts').appendChild(d);setTimeout(()=>{d.style.opacity='0';d.style.transition='.4s';setTimeout(()=>d.remove(),400);},3200);}
+
+let NUM='',TOPIC='',snap=null,confirmando=false;
+function cacheKey(){return 'negrets_track_'+TOPIC;}
+function cache(){if(TOPIC&&snap)try{localStorage.setItem(cacheKey(),JSON.stringify({snap,ts:Date.now()}));}catch(e){}}
+function fromCache(){if(!TOPIC)return null;try{const r=JSON.parse(localStorage.getItem(cacheKey()));return r&&r.snap?r:null;}catch(e){return null;}}
+
+function parseHash(){
+  const h=location.hash.replace(/^#/,'');
+  if(!h)return false;
+  try{const d=b64d(h);NUM=d.n||'';TOPIC=d.tn||'';return !!(NUM&&TOPIC);}catch(e){return false;}
 }
-/* card de carregamento do LINK PERMANENTE: ainda sem snapshot, só nº da OS + canal */
-function renderMini(d){
-  DATA=d;
-  $('app').innerHTML=`
-  <div class="card">
-    <div class="osnum">${esc(d.n||'')}</div>
-    <div class="upd" id="updLine"><span class="live wait"><i></i>Consultando a nuvem…</span></div>
-    <div class="minibody">Estamos buscando o status atual do seu serviço.<br>Este é o link fixo da sua OS: todas as atualizações da loja aparecem aqui automaticamente.</div>
-    <div class="btnrow">
-      <button id="btnUpd">ATUALIZAR</button>
-    </div>
-  </div>`;
-  const b=$('btnUpd');
-  if(b)b.addEventListener('click',()=>refresh());
-}
-function statusLine(mode){
-  const ul=$('updLine');
-  if(!ul||!DATA)return;
-  if(mode==='live')ul.innerHTML=`<span class="live"><i></i>AO VIVO — verificado às ${fmtH(Date.now())}</span>`;
-  else if(mode==='warn')ul.innerHTML=`<span class="live warn"><i></i>Sem conexão com a nuvem — exibindo o último status recebido</span>`;
-  else if(mode==='same')ul.innerHTML=`<span class="live off"><i></i>Nenhuma novidade — verificado às ${fmtH(Date.now())}</span>`;
-  else if(mode==='empty')ul.innerHTML=`<span class="live warn"><i></i>A loja ainda não enviou o status pela nuvem — aguarde ou toque em ATUALIZAR</span>`;
-  else if(mode==='wait')ul.innerHTML=`<span class="live wait"><i></i>Consultando a nuvem…</span>`;
-  else if(mode==='none')ul.innerHTML='Atualizado: '+fmt(DATA.up);
-}
-let POLL=null;
-function startPolling(){
-  if(POLL)clearInterval(POLL);
-  POLL=null;
-  if(DATA&&DATA.tn){
-    POLL=setInterval(()=>{if(!document.hidden)refresh();},20000);
-  }
-}
-/* busca o snapshot mais recente do canal privado da OS na nuvem */
-async function refresh(){
-  if(BUSY||!DATA||!DATA.tn)return;
-  BUSY=true;
-  const btn=$('btnUpd');
-  if(btn){btn.disabled=true;btn.innerHTML='<span class="spin"></span>BUSCANDO…';}
-  if(!DATA.st&&DATA.n)statusLine('wait');
-  let mode='none';
+async function buscar(){
+  $('loading').style.display='';$('erro').style.display='none';$('conteudo').style.display='none';$('offBox').style.display='none';
   try{
-    const r=await fetch(NTFY+DATA.tn+'/json?poll=1&_='+Date.now(),{cache:'no-store'});
-    if(r.ok){
-      const txt=await r.text();
-      const lines=txt.trim()?txt.trim().split('\n'):[];
-      let msg=null;
-      for(const ln of lines){
-        try{
-          const ev=JSON.parse(ln);
-          if(ev&&ev.message){
-            const j=JSON.parse(ev.message);
-            if(j&&j.up&&(!msg||j.up>msg.up))msg=j;
-          }
-        }catch(e){}
-      }
-      if(msg){
-        if(!DATA.st||msg.up>(DATA.up||0)){
-          render(msg);
-          DATA.tn=DATA.tn||msg.tn||DATA.tn;
-          startPolling();
-          mode='live';
-        }else mode='same';
-      }else{
-        mode=DATA.st?'same':'empty';
-      }
-    }else mode=DATA.st?'warn':'empty';
-  }catch(e){mode=DATA.st?'warn':'empty';}
-  statusLine(mode);
-  const b2=$('btnUpd');
-  if(b2){b2.disabled=false;b2.textContent='ATUALIZAR';}
-  BUSY=false;
-}
-function openHash(h){
-  if(!h)throw 0;
-  const d=b64d(h);
-  if(hasCloud(d)&&!d.st){
-    renderMini(d);
-    refresh();
-    startPolling();
-  }else{
-    render(d);
-    if(hasCloud(d)){refresh();startPolling();}
-    else statusLine('none');
+    const r=await fetch(NTFY+encodeURIComponent(TOPIC)+'/json?poll=1&since=12h',{cache:'no-store'});
+    const txt=await r.text();
+    let best=null;
+    txt.trim().split(/\n+/).forEach(l=>{
+      try{
+        const m=JSON.parse(l);
+        if(m.event!=='message'||!m.message)return;
+        let d=null;try{d=JSON.parse(m.message);}catch(e){return;}
+        if(d&&d.n&&d.st&&!d.cmd){if(!best||((d.up||0)>=(best.up||0)))best=d;}
+      }catch(e){}
+    });
+    if(best){snap=best;$('loading').style.display='none';$('erro').style.display='none';$('conteudo').style.display='';render();cache();}
+    else{
+      const c=fromCache();
+      if(c){snap=c.snap;$('loading').style.display='none';$('erro').style.display='none';$('conteudo').style.display='';$('offBox').style.display='';render();}
+      else{$('loading').style.display='none';$('erro').style.display='';}
+    }
+  }catch(e){
+    const c=fromCache();
+    $('loading').style.display='none';
+    if(c){snap=c.snap;$('erro').style.display='none';$('conteudo').style.display='';$('offBox').style.display='';render();}
+    else $('erro').style.display='';
   }
 }
-try{
-  openHash(location.hash.slice(1));
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
-  window.addEventListener('online',()=>refresh());
-  window.addEventListener('hashchange',()=>{
-    try{
-      const nh=location.hash.slice(1);if(!nh)return;
-      BUSY=false;
-      openHash(nh);
-    }catch(e){}
-  });
-}catch(e){
-  $('app').innerHTML='<div class="err"><h1>Link inválido</h1><p>Peça um novo link de acompanhamento à loja pelo WhatsApp.</p></div>';
+function render(){
+  if(!snap)return;
+  document.title='OS '+snap.n+' — '+(snap.l||"NEGRET'S");
+  $('hLoja').textContent=snap.l||"NEGRET'S";
+  $('osNum').textContent=snap.n;
+  const st=$('osSt');st.textContent=ST[snap.st]||snap.st;st.className='badge st-'+snap.st;
+  $('osUpd').textContent='Atualizado em '+fmtDT(snap.up||Date.now());
+  /* timeline: percorre o histórico na ordem do fluxo, marca feitos */
+  const h=(snap.h||[]).slice().sort((a,b)=>a[1]-b[1]);
+  const feitos={};h.forEach(x=>feitos[x[0]]=x[1]);
+  let atualIdx=0;
+  const flow=['analise','orcamento','reparo','pronto','entregue'];
+  flow.forEach((k,i)=>{if(feitos[k])atualIdx=i;});
+  $('osTl').innerHTML=flow.map((k,i)=>{
+    const t=feitos[k];
+    const done=!!t||(i<atualIdx);
+    const atual=i===atualIdx;
+    return `<div class="tl-item ${done?'done':''}"><b style="${atual?'color:var(--gold)':''}">${ST[k]}${atual?' · AGORA':''}</b><span>${t?fmtDT(t):'aguardando esta etapa'}</span></div>`;
+  }).join('');
+  /* aparelho */
+  let dv=`<div class="kv"><span>Aparelho</span><b>${esc(snap.m||'—')}</b></div>`;
+  if(snap.d)dv+=`<div class="kv"><span>Defeito relatado</span><b>${esc(snap.d)}</b></div>`;
+  if(snap.sv)dv+=`<div class="kv"><span>Serviços</span><b>${esc(snap.sv)}</b></div>`;
+  if(snap.g)dv+=`<div class="kv"><span>Garantia</span><b>${snap.g} dias${snap.st==='entregue'?(()=>{const eg=(snap.h||[]).filter(x=>x[0]==='entregue');return eg.length?' · até '+fmtD(eg[eg.length-1][1]+snap.g*864e5):'';})():' a partir da entrega'}</b></div>`;
+  dv+=`<div class="kv"><span>Cliente</span><b>${esc(snap.c||'—')}</b></div>`;
+  $('osDev').innerHTML=dv;
+  /* valores */
+  const tot=+snap.v||0;
+  if(tot>0){
+    const pg=+snap.pg||0,falta=Math.max(0,tot-pg);
+    let vv=`<div class="kv"><span>Total</span><b class="money">${money(tot)}</b></div><div class="kv"><span>Pago</span><b class="money">${money(pg)}</b></div>`;
+    if(falta>0)vv+=`<div class="kv"><span>Falta</span><b class="money" style="color:var(--gold)">${money(falta)}</b></div>`;
+    else vv+='<div class="kv"><span>Situação</span><b style="color:#8fd48f">QUITADA ✔</b></div>';
+    $('osVal').innerHTML=vv;$('boxValores').style.display='';
+  }else{$('boxValores').style.display='none';}
+  /* pronto: caixa de confirmação */
+  $('prontoBox').style.display=snap.st==='pronto'?'':'none';
+  $('okBox').style.display='none';
+  /* zap */
+  const z=limpaTel(snap.z);
+  $('btZap').style.display=z?'':'none';
 }
+const limpaTel=s=>String(s||'').replace(/\D/g,'');
+async function confirmar(){
+  if(!snap||snap.st!=='pronto'||confirmando)return;
+  if(!navigator.onLine){toast('Sem internet — conecte-se para confirmar.');return;}
+  if(!confirm('Confirmar que você já recebeu seu aparelho?'))return;
+  confirmando=true;$('btConfirm').textContent='ENVIANDO…';
+  try{
+    const r=await fetch(NTFY+encodeURIComponent(TOPIC),{method:'POST',body:JSON.stringify({cmd:'confirm',tn:TOPIC,ts:Date.now()})});
+    if(!r.ok)throw 0;
+    snap.st='entregue';snap.h=(snap.h||[]).concat([['entregue',Date.now()]]);snap.up=Date.now();
+    render();cache();
+    $('okBox').style.display='';
+    $('prontoBox').style.display='none';
+    toast('Recebimento confirmado! ✔');
+  }catch(e){toast('Não foi possível enviar — tente de novo.');}
+  confirmando=false;$('btConfirm').textContent='CONFIRMAR QUE RECEBI MEU APARELHO';
+}
+function waLoja(){
+  const z=limpaTel(snap&&snap.z);if(!z)return;
+  const msg='Olá! Sou '+((snap&&snap.c)||'cliente')+', sobre a OS '+((snap&&snap.n)||'')+' — tenho uma dúvida sobre meu aparelho.';
+  window.open('https://wa.me/'+z+'?text='+encodeURIComponent(msg),'_blank');
+}
+$('btConfirm').addEventListener('click',confirmar);
+$('btUpd').addEventListener('click',buscar);
+$('btRetry').addEventListener('click',buscar);
+$('btZap').addEventListener('click',waLoja);
+window.addEventListener('online',()=>{if(TOPIC)buscar();});
+
+/* init */
+if(parseHash()){buscar();setInterval(buscar,60*1000);}
+else{$('loading').style.display='none';$('erro').style.display='';}
 </script>
 </body>
 </html>
