@@ -171,6 +171,16 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 @media (orientation:landscape) and (max-height:520px){.sheet{max-height:96vh}}
 .ibtn{width:34px;height:34px;border-radius:10px;border:1px solid #26241d;background:none;color:var(--gold);font-size:15px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
 .ibtn.del{color:#e07070;border-color:rgba(224,112,112,.35)}
+.ibtn.eye{width:36px;height:36px;border-radius:12px;border-color:rgba(200,164,74,.38);background:linear-gradient(160deg,rgba(200,164,74,.12),rgba(200,164,74,.03));transition:.2s}
+.ibtn.eye.act{border-color:rgba(200,164,74,.75);background:linear-gradient(160deg,rgba(200,164,74,.26),rgba(200,164,74,.08))}
+.ibtn.eye svg{display:block}
+.pass-wrap{position:relative;display:block}
+.pass-wrap input{padding-right:48px}
+.pass-eye{position:absolute;right:7px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:9px;border:1px solid #26241d;background:none;color:var(--gold);display:inline-flex;align-items:center;justify-content:center;padding:0}
+.pass-eye svg{display:block}
+.adm-hero{display:flex;flex-direction:column;align-items:center;text-align:center;margin:-2px 0 14px}
+.adm-lock{width:56px;height:56px;border-radius:50%;border:1.5px solid rgba(200,164,74,.45);background:radial-gradient(circle at 30% 25%,rgba(200,164,74,.16),rgba(200,164,74,.04));display:inline-flex;align-items:center;justify-content:center;color:var(--gold);margin-bottom:10px}
+.adm-lock svg{display:block}
 .chip{background:#0d0d0d;border:1px solid #242218;color:#b6b0a0;border-radius:99px;padding:7px 13px;font-size:12.5px;transition:.18s}
 .chip.on{background:rgba(212,175,55,.16);border-color:var(--gold-d);color:var(--gold)}
 .chips{display:flex;flex-wrap:wrap;gap:7px}
@@ -346,7 +356,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 
 <!-- ===== PAINEL ===== -->
 <section class="tab on" id="painel">
-  <div class="t-title">PAINEL DO DIA<button class="ibtn" id="btnOlho" data-act="olhoTgl" type="button" title="Esconder/mostrar os valores" style="margin-left:auto;font-size:16px">👁</button></div>
+  <div class="t-title">PAINEL DO DIA<button class="ibtn eye" id="btnOlho" data-act="olhoTgl" type="button" title="Esconder/mostrar os valores" aria-label="Esconder ou mostrar os valores" style="margin-left:auto"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
   <div id="pnSmart"></div>
   <div class="stats" id="pnStats"></div>
   <div class="bars" id="pnBars"></div>
@@ -542,8 +552,8 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
 
 <div class="mask" id="mSenha"><div class="sheet">
   <div class="m-head"><h3>Acesso Restrito</h3><button class="m-x" data-act="mclose">×</button></div>
-  <p class="m-note" id="admNote"></p>
-  <label class="fld req"><span>SENHA DE ADMINISTRADOR</span><input id="admPass" type="password" inputmode="text" autocomplete="off" placeholder="••••"></label>
+  <div class="adm-hero"><span class="adm-lock"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="11" width="17" height="10" rx="2.5"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1.4" fill="currentColor" stroke="none"/></svg></span><p class="m-note" id="admNote"></p></div>
+  <label class="fld req"><span>SENHA DE ADMINISTRADOR</span><span class="pass-wrap"><input id="admPass" type="password" inputmode="text" autocomplete="off" placeholder="••••"><button class="pass-eye" data-act="passEye" data-tgt="admPass" type="button" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></span></label>
   <button class="btn blk" data-act="admOk">ENTRAR</button>
 </div></div>
 
@@ -551,6 +561,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
   <div class="m-head"><h3>Configurações</h3><button class="m-x" data-act="mclose">×</button></div>
   <div class="cfg-sec"><div class="cs-t">LOJA &amp; CUPOM</div>
     <label class="fld req"><span>NOME DA LOJA</span><input id="cNome" placeholder="NEGRET'S ASSISTÊNCIA"></label>
+    <label class="fld"><span>CNPJ (SAI NO CUPOM E NAS OS)</span><input id="cCnpj" inputmode="numeric" placeholder="00.000.000/0000-00" oninput="maskCnpj(this)"></label>
     <label class="fld"><span>ENDEREÇO</span><input id="cEnd" placeholder="Rua, número, bairro"></label>
     <div class="f2">
       <label class="fld"><span>WHATSAPP DA LOJA</span><input id="cZap" inputmode="tel" placeholder="31982517147"></label>
@@ -568,7 +579,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600}
     <p class="m-note">Tem assinatura de consulta de IMEI (imeicheck.net, imei.info API…)? Cole a URL aqui — o botão CONSULTAR passa a puxar a resposta na hora, direto no app. Sem API, o botão abre os verificadores públicos gratuitos (blacklist e dados do aparelho) e você registra o resultado nos chips de situação da OS.</p>
   </div>
   <div class="cfg-sec"><div class="cs-t">SEGURANÇA</div>
-    <label class="fld"><span>NOVA SENHA DE ADMINISTRADOR</span><input id="cNovaSenha" type="password" autocomplete="new-password" placeholder="Deixe vazio para manter"></label>
+    <label class="fld"><span>NOVA SENHA DE ADMINISTRADOR</span><span class="pass-wrap"><input id="cNovaSenha" type="password" autocomplete="new-password" placeholder="Deixe vazio para manter"><button class="pass-eye" data-act="passEye" data-tgt="cNovaSenha" type="button" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></span></label>
     <p class="m-note">A senha é pedida para abrir Configurações e para excluir registros. Padrão inicial: <b>1234</b>.</p>
   </div>
   <div class="cfg-sec"><div class="cs-t">BACKUP — COPIA DE SEGURANÇA</div>
@@ -905,7 +916,7 @@ function load(){
   else try{DB=JSON.parse(raw);}catch(e){DB={};}
   DB.ordens=DB.ordens||[];DB.vendas=DB.vendas||[];DB.produtos=DB.produtos||[];DB.clientes=DB.clientes||[];DB.fornecedores=DB.fornecedores||[];DB.despesas=DB.despesas||[];DB.caixa=DB.caixa||[];DB.contas=DB.contas||[];DB.seq=DB.seq||{};
   const c=DB.config||{};
-  c.loja=c.loja||{nome:"NEGRET'S ASSISTÊNCIA",endereco:'',zap:'',cidade:'',rodape:'Obrigado pela confiança!'};
+  c.loja=c.loja||{nome:"NEGRET'S ASSISTÊNCIA",cnpj:'',endereco:'',zap:'',cidade:'',rodape:'Obrigado pela confiança!'};
   c.pix=c.pix||{chave:'',recebedor:''};
   c.admSenha=c.admSenha||'1234';
   c.imei=(c.imei&&typeof c.imei==='object')?c.imei:{apiUrl:''};
@@ -1800,6 +1811,8 @@ function puxAdd(id){
 }
 
 /* ---------- painel ---------- */
+const EYE_ON='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 function renderPainel(){
   const hoje=new Date().toDateString();
   let fat=0,luc=0,nv=0;
@@ -1811,7 +1824,7 @@ function renderPainel(){
   const abertas=DB.ordens.filter(o=>o.status!=='entregue').length;
   const arec=DB.ordens.reduce((a,o)=>a+faltaDe(o),0);
   const off=DB.config.olho==='1',mm='R$ ••••';
-  const ob=$('btnOlho');if(ob){ob.textContent=off?'🙈':'👁';ob.title=off?'Mostrar os valores':'Esconder os valores';}
+  const ob=$('btnOlho');if(ob){ob.innerHTML=off?EYE_OFF:EYE_ON;ob.classList.toggle('act',off);ob.title=off?'Mostrar os valores':'Esconder os valores';}
   $('pnStats').innerHTML=`
     <div class="stat"><div class="lb">FATURAMENTO HOJE</div><div class="vl">${off?mm:money(fat)}</div><div class="sm">${nv} venda${nv===1?'':'s'}</div></div>
     <div class="stat"><div class="lb">LUCRO HOJE</div><div class="vl">${off?mm:money(luc)}</div><div class="sm">custos descontados</div></div>
@@ -2187,6 +2200,7 @@ function cupomHTML(v){
     <div style="text-align:center">
       <svg width="40" height="40" viewBox="0 0 72 72" style="display:block;margin:0 auto 1mm"><path d="M36 6 66 36 36 66 6 36Z" fill="none" stroke="#000" stroke-width="3.4"/><path d="M36 17 55 36 36 55 17 36Z" fill="none" stroke="#000" stroke-width="1.5"/><text x="36" y="47.5" font-family="Georgia,serif" font-size="27" font-weight="bold" fill="#000" text-anchor="middle">N</text></svg>
       <div style="font-family:Georgia,serif;font-size:14px;font-weight:700;letter-spacing:2px">${esc((L.nome||"NEGRET'S").toUpperCase())}</div>
+      ${L.cnpj?`<div style="font-size:10.5px">CNPJ: ${esc(L.cnpj)}</div>`:''}
       ${L.endereco?`<div style="font-size:10.5px">${esc(L.endereco.slice(0,42))}</div>`:''}
       ${L.zap?`<div style="font-size:10.5px">WhatsApp: ${esc(L.zap)}</div>`:''}
     </div>
@@ -2222,7 +2236,7 @@ async function cupomPdf(v){
   const L=DB.config.loja;
   const nIt=v.itens.length;
   const pags=(v.pags&&v.pags.length)?v.pags:[{f:v.forma||'—',v:v.total}];
-  const H=56+nIt*11+pags.length*4.6+((L.rodape?8:0));
+  const H=56+nIt*11+pags.length*4.6+((L.rodape?8:0))+((L.cnpj?4:0));
   const doc=new jsPDF({unit:'mm',format:[58,Math.max(95,H)]});
   const W=58,CX=W/2;
   /* logo: losango duplo centralizado, N dentro da margem */
@@ -2235,6 +2249,7 @@ async function cupomPdf(v){
   doc.text(ascii(L.nome||"NEGRET'S").toUpperCase().slice(0,26),CX,31.5,{align:'center'});
   doc.setFont('courier','normal');doc.setFontSize(7.5);
   let y=36;
+  if(L.cnpj){doc.text('CNPJ: '+ascii(L.cnpj).slice(0,32),CX,y,{align:'center'});y+=4;}
   if(L.endereco){doc.text(ascii(L.endereco).slice(0,42),CX,y,{align:'center'});y+=4;}
   if(L.zap){doc.text('WhatsApp: '+limpaTel(L.zap),CX,y,{align:'center'});y+=4;}
   y+=1;doc.setLineDashPattern([.6,.6],0);doc.setLineWidth(.2);doc.line(3,y,W-3,y);y+=4.5;
@@ -2268,7 +2283,7 @@ async function cupomPdf(v){
 function cupomWa(v){
   if(!v)return;
   const L=DB.config.loja;
-  let msg='*'+ascii(L.nome||"NEGRET'S").toUpperCase()+"* — comprovante\n"+fmtDT(v.data)+'\n\n';
+  let msg='*'+ascii(L.nome||"NEGRET'S").toUpperCase()+"* — comprovante\n"+(L.cnpj?'CNPJ: '+L.cnpj+'\n':'')+fmtDT(v.data)+'\n\n';
   v.itens.forEach(i=>{msg+=i.qtd+'x '+i.nome+' — '+money(i.preco*i.qtd)+'\n';});
   msg+='\n';
   if(v.descPct)msg+='Desconto ('+v.descPct+'%): -'+money(v.desc)+'\n';
@@ -2310,7 +2325,7 @@ async function pdfJs(o){
   doc.setFontSize(24);doc.setTextColor(20,20,20);tracked(doc,105,80,"NEGRET'S",3.4,'center');
   doc.setFontSize(9);doc.setTextColor(140,125,70);tracked(doc,105,87,'ASSISTENCIA TECNICA & VENDAS',1.4,'center');
   const L=DB.config.loja;
-  const cont=[L.endereco,L.zap?'WhatsApp: '+limpaTel(L.zap):''].filter(Boolean).join('  •  ');
+  const cont=[L.cnpj?'CNPJ: '+L.cnpj:'',L.endereco,L.zap?'WhatsApp: '+limpaTel(L.zap):''].filter(Boolean).join('  •  ');
   if(cont){doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(120,112,90);doc.text(cont.slice(0,95),105,93,{align:'center'});}
   doc.setFontSize(16);doc.setTextColor(30,30,30);tracked(doc,105,104,'ORDEM DE SERVICO',2.2,'center');
   doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(212,175,55);doc.text(o.num,105,111,{align:'center'});
@@ -2439,7 +2454,7 @@ function pdfOsDoc(o,fts){
   tracked(doc,105,32,"NEGRET'S",2.6,'center');
   doc.setFontSize(8);doc.setTextColor(140,125,70);
   tracked(doc,105,38,'ASSISTENCIA TECNICA & VENDAS',1.1,'center');
-  const cont=[L.endereco,L.zap?'WhatsApp: '+limpaTel(L.zap):''].filter(Boolean).join('  •  ');
+  const cont=[L.cnpj?'CNPJ: '+L.cnpj:'',L.endereco,L.zap?'WhatsApp: '+limpaTel(L.zap):''].filter(Boolean).join('  •  ');
   if(cont){doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(120,112,90);doc.text(cont.slice(0,100),105,44,{align:'center'});}
   doc.setFont('times','bold');doc.setFontSize(13);doc.setTextColor(30,30,30);
   tracked(doc,105,53,'RESUMO COMPLETO DA ORDEM DE SERVICO',1.2,'center');
@@ -2778,9 +2793,17 @@ function cfgOpen(){
   if(sessionStorage.getItem('negretsAdm')==='1'){cfgFill();mclose('mMais');mopen('mCfg');return;}
   admCtx={purpose:'cfg'};$('admNote').textContent='Digite a senha de administrador para abrir as Configurações.';mclose('mMais');mopen('mSenha');setTimeout(()=>$('admPass').focus(),80);
 }
+function maskCnpj(el){const d=String(el.value||'').replace(/\D/g,'').slice(0,14);let v=d;
+  if(d.length>12)v=d.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{1,2}).*/,'$1.$2.$3/$4-$5');
+  else if(d.length===12)v=d.replace(/^(\d{2})(\d{3})(\d{3})(\d{4}).*/,'$1.$2.$3/$4');
+  else if(d.length>8)v=d.replace(/^(\d{2})(\d{3})(\d{3})(\d{1,4}).*/,'$1.$2.$3/$4');
+  else if(d.length>5)v=d.replace(/^(\d{2})(\d{3})(\d{1,3}).*/,'$1.$2.$3');
+  else if(d.length>2)v=d.replace(/^(\d{2})(\d{1,3}).*/,'$1.$2');
+  el.value=v;}
 function cfgFill(){
   const c=DB.config;
   $('cNome').value=c.loja.nome||'';$('cEnd').value=c.loja.endereco||'';$('cZap').value=c.loja.zap||'';
+  $('cCnpj').value=c.loja.cnpj||'';
   $('cCid').value=c.loja.cidade||'';$('cRod').value=c.loja.rodape||'';
   $('cPixChave').value=c.pix.chave||'';$('cPixNome').value=c.pix.recebedor||'';
   $('cImeiApi').value=(c.imei&&c.imei.apiUrl)||'';
@@ -2790,6 +2813,7 @@ function cfgSave(){
   const c=DB.config;
   c.loja.nome=$('cNome').value.trim()||"NEGRET'S ASSISTÊNCIA";
   c.loja.endereco=$('cEnd').value.trim();
+  c.loja.cnpj=$('cCnpj').value.trim();
   c.loja.zap=$('cZap').value.trim();
   c.loja.cidade=$('cCid').value.trim();
   c.loja.rodape=$('cRod').value.trim();
@@ -2927,6 +2951,7 @@ document.addEventListener('click',e=>{
     case 'goCad':mclose('mMais');goTab('cadastros');break;
     case 'mclose':{const m=t.closest('.mask');if(m)m.classList.remove('on');break;}
     case 'admOk':admOk();break;
+    case 'passEye':{const ip=$(tgt);if(ip){const show=ip.type==='password';ip.type=show?'text':'password';t.innerHTML=show?EYE_OFF:EYE_ON;t.setAttribute('aria-label',show?'Ocultar senha':'Mostrar senha');ip.focus();}break;}
     case 'cfgSave':cfgSave();break;
     case 'pixTest':pixTest();break;
     case 'bkExp':bkExp();break;
@@ -2996,7 +3021,7 @@ document.addEventListener('click',e=>{
     case 'goAlertas':{document.querySelectorAll('.mask.on').forEach(m=>m.classList.remove('on'));goTab('painel');setTimeout(()=>{const el=$('pnAlertas');if(el&&el.innerHTML)el.scrollIntoView({behavior:'smooth',block:'center'});else toast('Nenhum alerta de retirada no momento. ✔');},150);break;}
     case 'demoLoad':demoCarregar();break;
     case 'zerarTudo':zerarTudo();break;
-    case 'olhoTgl':DB.config.olho=DB.config.olho==='1'?'':'1';save();renderPainel();toast(DB.config.olho==='1'?'Valores escondidos. 🙈':'Valores visíveis. 👁');break;
+    case 'olhoTgl':DB.config.olho=DB.config.olho==='1'?'':'1';save();renderPainel();toast(DB.config.olho==='1'?'Valores escondidos.':'Valores visíveis.');break;
     case 'pdvScan':scanAbrir('pdv');break;
     case 'estScan':scanAbrir('est');break;
     case 'prodScan':scanAbrir('prod');break;
